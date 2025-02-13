@@ -21,4 +21,10 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  optimizeDeps: {
+    include: ["react-auth-kit"],
+  },
+  ssr: {
+    external: ["react-auth-kit"], 
+  },
 });
