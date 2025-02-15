@@ -4,7 +4,13 @@ import { json } from "@remix-run/node";
 const API_BASE_URL = "http://54.172.171.231/api";
 const AUTH_URL = "http://54.172.171.231/auth/token";
 
-// Add connection status tracking
+
+type RegisterData = {
+  email: string;
+  username: string;
+  password: string;
+};
+
 let isConnected = true;
 let lastConnectionCheck = Date.now();
 
@@ -13,10 +19,10 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 5000, // 5 second timeout
+  timeout: 5000, 
 });
 
-// Connection check function
+
 const checkConnection = async () => {
   try {
     await api.get('/health-check');
@@ -29,9 +35,9 @@ const checkConnection = async () => {
   lastConnectionCheck = Date.now();
 };
 
-// Request interceptor with connection handling
+
 api.interceptors.request.use(async (config) => {
-  // Check connection if last check was more than 30 seconds ago
+
   if (Date.now() - lastConnectionCheck > 30000) {
     await checkConnection();
   }
@@ -50,7 +56,7 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Response interceptor with error handling
+
 api.interceptors.response.use(
   (response) => {
     console.log(`API Call Success: ${response.config.url}`);
@@ -79,7 +85,7 @@ api.interceptors.response.use(
   }
 );
 
-// Login API with error handling
+
 export const login = async (email: string, password: string) => {
   try {
     console.log('Attempting login...');
@@ -103,7 +109,7 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-// Logout API with error handling
+
 export const logout = async () => {
   try {
     console.log('Attempting logout...');
@@ -115,13 +121,13 @@ export const logout = async () => {
   } catch (error) {
     console.error('Logout failed:', error);
     if (typeof document !== "undefined") {
-      localStorage.removeItem("token"); // Clear token anyway on error
+      localStorage.removeItem("token"); 
     }
     throw new Error('Logout failed - Please try again');
   }
 };
 
-// Fetch Movies with error handling
+
 export const fetchMovies = async () => {
   try {
     console.log('Fetching movies...');
@@ -137,7 +143,7 @@ export const fetchMovies = async () => {
   }
 };
 
-// Fetch Comments with error handling
+
 export const fetchComments = async () => {
   try {
     console.log('Fetching comments...');
@@ -152,7 +158,74 @@ export const fetchComments = async () => {
     throw new Error('Failed to fetch comments - Please try again');
   }
 };
+export const register = async (userData: RegisterData) => {
+  try {
+    if (!isConnected) {
+      await checkConnection();
+      if (!isConnected) {
+        throw new Error('No API connection available');
+      }
+    }
 
-// Export connection status checker for external use
+    console.log('Attempting registration...', { 
+      email: userData.email, 
+      username: userData.username 
+    });
+    
+    const response = await axios.post(`${AUTH_URL}/users/`, userData);
+    
+    if (response.status === 201 || response.status === 200) {
+      console.log('Registration successful');
+      
+      try {
+        const loginResponse = await login(userData.email, userData.password);
+        console.log('Auto-login successful after registration');
+        return {
+          success: true,
+          user: response.data,
+          auth: loginResponse
+        };
+      } catch (loginError) {
+        console.error('Auto-login failed after registration:', loginError);
+        return {
+          success: true,
+          user: response.data,
+          auth: null,
+          message: 'Registration successful but auto-login failed. Please login manually.'
+        };
+      }
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('Registration failed:', error);
+    
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 400) {
+        const validationErrors = error.response.data;
+        console.error('Validation errors:', validationErrors);
+        throw new Error(JSON.stringify(validationErrors));
+      }
+      
+      if (!error.response) {
+        isConnected = false;
+        throw new Error('Network error - Unable to reach registration server');
+      }
+      
+      const status = error.response.status;
+      switch (status) {
+        case 409:
+          throw new Error('Email or username already exists');
+        case 429:
+          throw new Error('Too many registration attempts. Please try again later');
+        default:
+          throw new Error(`Registration failed (${status}) - Please try again`);
+      }
+    }
+    
+    throw new Error('Registration failed - Please try again');
+  }
+};
+
 export const checkApiConnection = checkConnection;
 export const getConnectionStatus = () => isConnected;
