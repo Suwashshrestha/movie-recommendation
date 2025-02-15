@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { json } from "@remix-run/node";
 
 const API_BASE_URL = "http://54.172.171.231/api";
-const AUTH_URL = "http://54.172.171.231/auth/token";
+const AUTH_URL = "http://54.172.171.231/auth";
 
 
 type RegisterData = {
@@ -128,36 +128,6 @@ export const logout = async () => {
 };
 
 
-export const fetchMovies = async () => {
-  try {
-    console.log('Fetching movies...');
-    const response = await api.get("/movies/");
-    console.log(`Fetched ${response.data.length} movies`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch movies:', error);
-    if (!isConnected) {
-      throw new Error('Unable to fetch movies - No connection to server');
-    }
-    throw new Error('Failed to fetch movies - Please try again');
-  }
-};
-
-
-export const fetchComments = async () => {
-  try {
-    console.log('Fetching comments...');
-    const response = await api.get("/comments/");
-    console.log(`Fetched ${response.data.length} comments`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch comments:', error);
-    if (!isConnected) {
-      throw new Error('Unable to fetch comments - No connection to server');
-    }
-    throw new Error('Failed to fetch comments - Please try again');
-  }
-};
 export const register = async (userData: RegisterData) => {
   try {
     if (!isConnected) {
