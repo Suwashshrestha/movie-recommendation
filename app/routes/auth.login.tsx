@@ -1,23 +1,51 @@
-import { Form, useActionData } from "@remix-run/react";
-import { ActionFunction, json, redirect } from "@remix-run/node";
-
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  try {
-    const data = await login(email, password);
-    return redirect("/movies");
-  } catch (error) {
-    return json({ error: "Invalid credentials" }, { status: 400 });
-  }
-};
+import { useState, useEffect } from "react";
+import { Form, useNavigate } from "@remix-run/react";
+import { loginUser } from "~/utils/api";
 
 export default function Login() {
-  const actionData = useActionData();
-  
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  useEffect(() => {
+    if (loginSuccess) {
+      const token = localStorage.getItem("auth_token");
+      if (token) {
+        console.log("Login successful, redirecting...");
+        navigate("/");
+      }
+    }
+  }, [loginSuccess, navigate]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setIsLoading(true);
+    setLoginSuccess(false);
+
+    const formData = new FormData(event.currentTarget);
+    const credentials = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+
+    try {
+      const response = await loginUser(credentials);
+      localStorage.setItem("auth_token", response.auth_token);
+     
+      setLoginSuccess(true);
+    } catch (error) {
+      console.error("Login error:", error);
+      setError(error instanceof Error ? error.message : "Invalid credentials");
+      setLoginSuccess(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+
   return (
     <div className="min-h-screen bg-gray-900">
       <div className="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -41,13 +69,13 @@ export default function Login() {
               </p>
             </div>
 
-            {actionData?.error && (
+            {error && (
               <div className="mb-6 rounded-lg bg-red-900/50 p-4 text-red-200 border border-red-500">
-                {actionData.error}
+                {error}
               </div>
             )}
 
-            <Form method="post" className="space-y-6">
+            <Form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
                   htmlFor="email"
@@ -105,9 +133,10 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-3 rounded-lg transition-colors"
+                disabled={isLoading}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in
+                {isLoading ? "Signing in..." : "Sign in"}
               </button>
             </Form>
 

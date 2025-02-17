@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { fetchMovies } from "../utils/api"
+import { fetchMovies } from "../utils/api";
+
 interface Movie {
   id: string;
   title: string;
-  poster: string;
+  poster_path: string;
   rating: number;
   year: string;
   genre: string[];
@@ -14,7 +15,7 @@ function MovieCard({ movie }: { movie: Movie }) {
     <div className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105">
       <div className="relative aspect-[2/3]">
         <img
-          src={movie.poster}
+          src={movie.poster_path}
           alt={movie.title}
           className="w-full h-full object-cover"
         />
@@ -39,6 +40,9 @@ export default function Discover() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 12;
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -46,12 +50,10 @@ export default function Discover() {
       setError(null);
   
       try {
-        const data = await fetchMovies();
-        console.log("Fetched Movies:", data); 
-        if (!Array.isArray(data)) {
-          throw new Error("Invalid data format");
-        }
-        setMovies(data);
+        const response = await fetchMovies(page, pageSize);
+        console.log("Fetched Movies:", response);
+        setMovies(response.results);
+        setHasMore(!!response.next);
       } catch (error) {
         console.error("Error fetching movies:", error);
         setError("Failed to load movies. Please try again later.");
@@ -61,8 +63,15 @@ export default function Discover() {
     };
   
     loadMovies();
-  }, []);
-  
+  }, [page]);
+
+  const handleNextPage = () => {
+    setPage(prev => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    setPage(prev => Math.max(1, prev - 1));
+  };
 
   // Filter movies based on the selected genre
   const filteredMovies =
@@ -115,8 +124,28 @@ export default function Discover() {
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-8 flex justify-center gap-4">
+          <button
+            onClick={handlePreviousPage}
+            disabled={page === 1 || isLoading}
+            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous Page
+          </button>
+          <span className="px-4 py-2 text-sm font-medium text-white">
+            Page {page}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={!hasMore || isLoading}
+            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next Page
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
