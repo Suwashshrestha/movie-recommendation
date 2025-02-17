@@ -38,12 +38,7 @@ export default function Index() {
               >
                 Start Discovering
               </Link>
-              <Link
-                to="/auth/register"
-                className="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
-              >
-                Create Account
-              </Link>
+             
             </div>
           </div>
         </div>

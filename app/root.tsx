@@ -149,19 +149,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 py-2 bg-gray-800 rounded-md shadow-xl z-50">
                           <NavLink
-                            to="/watchlist"
+                            to="/user"
+                            className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Your Profile
+                          </NavLink>
+                          <NavLink
+                            to="/user/watchlist"
                             className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                           >
                             Your Watchlist
                           </NavLink>
                           <NavLink
-                            to="/ratings"
+                            to="/user/ratings"
                             className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                           >
                             Your Ratings
                           </NavLink>
                           <NavLink
-                            to="/lists"
+                            to="/user/lists"
                             className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                           >
                             Your Lists
