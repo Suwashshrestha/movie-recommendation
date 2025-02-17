@@ -4,9 +4,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  NavLink
+  NavLink,
+  useNavigate
 } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import type { LinksFunction } from "@remix-run/node";
+import { getUserProfile } from "~/utils/api";
+
 
 import "./tailwind.css";
 
@@ -24,6 +28,42 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      const token = localStorage.getItem('auth_token');
+      
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const profile = await getUserProfile();
+        setUserProfile(profile);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        localStorage.removeItem('auth_token');
+        navigate('/auth/login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserProfile();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    setIsLoggedIn(false);
+    setUserProfile(null);
+    navigate('/auth/login');
+  };
   return (
     <html lang="en" className="dark">
       <head>
@@ -65,18 +105,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </NavLink>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <NavLink
-                    to="/auth/login"
-                    className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-purple-400"
-                  >
-                    Login
-                  </NavLink>
-                  <NavLink
-                    to="/auth/register"
-                    className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-                  >
-                    Sign Up
-                  </NavLink>
+                {isLoading ? (
+                    <div className="text-gray-400">Loading...</div>
+                  ) : isLoggedIn && userProfile ? (
+                    <>
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm font-medium text-white">
+                          {userProfile.username}
+                        </span>
+                        
+                      </div>
+                      {userProfile.is_verified && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          Verified
+                        </span>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="ml-4 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors"
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex items-center space-x-4">
+                      <NavLink
+                        to="/auth/login"
+                        className="text-gray-300 hover:text-purple-400"
+                      >
+                        Sign In
+                      </NavLink>
+                      <NavLink
+                        to="/auth/register"
+                        className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                      >
+                        Sign Up
+                      </NavLink>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
