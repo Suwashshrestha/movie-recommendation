@@ -1,66 +1,79 @@
 import { useState } from "react";
-import { Form, useNavigate } from "@remix-run/react";
-import { register } from "~/utils/api";
+import { Form, Link, useNavigate } from "@remix-run/react";
+import { registerUser } from "../utils/api";
 
 export default function Register() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setSuccess(null);
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    
-    try {
-      const result = await register({
-        email: formData.get("email") as string,
-        username: formData.get("username") as string,
-        password: formData.get("password") as string
-      });
+    const userData = {
+      email: formData.get("email") as string,
+      username: formData.get("username") as string,
+      password: formData.get("password") as string,
+    };
 
-      if (result.success) {
-        if (result.auth) {
-          navigate("/dashboard");
-        } else {
-          navigate("/auth/login");
-        }
-      }
+    try {
+      setSuccess("Starting registration process...");
+      console.log("Sending registration request:", { email: userData.email, username: userData.username });
+
+      await registerUser(userData);
+
+      console.log("Registration successful");
+      setSuccess("Registration successful!");
+
+      // Auto redirect after successful registration
+      setTimeout(() => {
+        navigate("/auth/login");
+      }, 2000);
+
     } catch (error) {
-      if (error instanceof Error) {
-        try {
-          const validationErrors = JSON.parse(error.message);
-          setError(Object.values(validationErrors).join(', '));
-        } catch {
-          setError(error.message);
-        }
-      }
+      console.error("Registration error:", error);
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Create your account
-        </h2>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-extrabold text-white">
+            Create your CineMatch account
+          </h2>
+          <p className="mt-2 text-sm text-gray-400">
+            Already have an account?{" "}
+            <Link to="/auth/login" className="text-purple-500 hover:text-purple-400">
+              Sign in
+            </Link>
+          </p>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-              {error}
-            </div>
-          )}
+        {/* Messages */}
+        {success && (
+          <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+            {success}
+          </div>
+        )}
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
-          <Form className="space-y-6" onSubmit={handleSubmit}>
+        <Form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="sr-only">
                 Username
               </label>
               <input
@@ -68,25 +81,25 @@ export default function Register() {
                 name="username"
                 type="text"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Username"
               />
             </div>
-
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+              <label htmlFor="email" className="sr-only">
+                Email address
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Email address"
               />
             </div>
-
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
@@ -94,21 +107,20 @@ export default function Register() {
                 name="password"
                 type="password"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Password"
               />
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isLoading ? 'Registering...' : 'Register'}
-            </button>
-          </Form>
-        </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Creating account..." : "Create account"}
+          </button>
+        </Form>
       </div>
     </div>
   );

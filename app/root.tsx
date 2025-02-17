@@ -43,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex items-center space-x-6">
                 <div className="flex space-x-4">
-                  <NavLink 
+                <NavLink 
                     to="/discover" 
                     className={({ isActive }) =>
                       `px-3 py-2 rounded-md text-sm font-medium ${
