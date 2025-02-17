@@ -7,7 +7,7 @@ import {
   NavLink,
   useNavigate
 } from "@remix-run/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { LinksFunction } from "@remix-run/node";
 import { getUserProfile } from "~/utils/api";
 
@@ -30,14 +30,19 @@ export const links: LinksFunction = () => [
 export function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const loadUserProfile = async () => {
       const token = localStorage.getItem('auth_token');
-      
+
       if (!token) {
+        console.log("@@")
         setIsLoading(false);
         return;
       }
@@ -45,6 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       try {
         const profile = await getUserProfile();
         setUserProfile(profile);
+        console.log("updated")
         setIsLoggedIn(true);
       } catch (error) {
         console.error('Failed to load profile:', error);
@@ -57,6 +63,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
     loadUserProfile();
   }, [navigate]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  console.log({ isLoggedIn, userProfile })
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -83,21 +102,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex items-center space-x-6">
                 <div className="flex space-x-4">
-                <NavLink 
-                    to="/discover" 
+                  <NavLink
+                    to="/discover"
                     className={({ isActive }) =>
-                      `px-3 py-2 rounded-md text-sm font-medium ${
-                        isActive ? 'text-purple-500' : 'text-gray-300 hover:text-purple-400'
+                      `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'text-purple-500' : 'text-gray-300 hover:text-purple-400'
                       }`
                     }
                   >
                     Discover
                   </NavLink>
-                  <NavLink 
-                    to="/recommendations" 
+                  <NavLink
+                    to="/recommendations"
                     className={({ isActive }) =>
-                      `px-3 py-2 rounded-md text-sm font-medium ${
-                        isActive ? 'text-purple-500' : 'text-gray-300 hover:text-purple-400'
+                      `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'text-purple-500' : 'text-gray-300 hover:text-purple-400'
                       }`
                     }
                   >
@@ -105,28 +122,60 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </NavLink>
                 </div>
                 <div className="flex items-center space-x-2">
-                {isLoading ? (
-                    <div className="text-gray-400">Loading...</div>
-                  ) : isLoggedIn && userProfile ? (
-                    <>
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm font-medium text-white">
-                          {userProfile.username}
-                        </span>
-                        
-                      </div>
-                      {userProfile.is_verified && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                          Verified
-                        </span>
-                      )}
+                  {isLoggedIn && userProfile ? (
+                    <div className="relative" ref={dropdownRef}>
                       <button
-                        onClick={handleLogout}
-                        className="ml-4 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-800 transition-colors"
                       >
-                        Sign Out
+                        <div className="flex flex-col items-end">
+                          <span className="text-sm font-medium text-white">
+                            {userProfile.username}
+                          </span>
+                          {/* {userProfile.is_verified && (
+                            <span className="text-xs text-purple-400">Verified</span>
+                          )} */}
+                        </div>
+                        <svg
+                          className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'transform rotate-180' : ''
+                            }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                       </button>
-                    </>
+                      {isDropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-48 py-2 bg-gray-800 rounded-md shadow-xl z-50">
+                          <NavLink
+                            to="/watchlist"
+                            className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Your Watchlist
+                          </NavLink>
+                          <NavLink
+                            to="/ratings"
+                            className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Your Ratings
+                          </NavLink>
+                          <NavLink
+                            to="/lists"
+                            className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Your Lists
+                          </NavLink>
+                          <div className="border-t border-gray-700 my-1"></div>
+                          <button
+                            onClick={handleLogout}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <div className="flex items-center space-x-4">
                       <NavLink

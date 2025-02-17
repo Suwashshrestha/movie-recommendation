@@ -51,19 +51,40 @@ export const registerUser = async (userData: {
 };
 
 // GET request to fetch movies
-export const fetchMovies = async () => {
+interface MovieResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Movie[];
+}
+
+interface Movie {
+  id: string;
+  title: string;
+  poster_path: string;
+  rating: number;
+  year: string;
+  genre: string[];
+}
+export const fetchMovies = async (page: number = 1, pageSize: number = 12): Promise<MovieResponse> => {
   try {
-    console.log("Fetching movies from:", `${API_BASE_URL}/api/movies/`);
+    console.log(`Fetching movies page ${page} with size ${pageSize}`);
 
-    const response = await axios.get(`${API_BASE_URL}/api/movies/`, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+    const response = await axios.get<MovieResponse>(
+      `${API_BASE_URL}/api/movies/`, {
+        params: {
+          page,
+          page_size: pageSize
+        },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
 
-    console.log("API Response:", response.data); // Debugging
-    return response.data.results; 
+    console.log("API Response:", response.data);
+    return response.data;
   } catch (error) {
     console.error("FetchMovies Error:", error);
 
@@ -71,12 +92,10 @@ export const fetchMovies = async () => {
       if (error.response?.data) {
         console.error("API Error Response:", error.response.data);
         throw new Error(Object.values(error.response.data).flat().join(", "));
-      } else {
-        throw new Error("Network error - please try again");
       }
-    } else {
-      throw new Error("An unexpected error occurred");
+      throw new Error("Network error - please try again");
     }
+    throw new Error("An unexpected error occurred");
   }
 };
 

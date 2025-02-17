@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, useNavigate } from "@remix-run/react";
 import { loginUser } from "~/utils/api";
 
@@ -6,11 +6,23 @@ export default function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  useEffect(() => {
+    if (loginSuccess) {
+      const token = localStorage.getItem("auth_token");
+      if (token) {
+        console.log("Login successful, redirecting...");
+        navigate("/");
+      }
+    }
+  }, [loginSuccess, navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setIsLoading(true);
+    setLoginSuccess(false);
 
     const formData = new FormData(event.currentTarget);
     const credentials = {
@@ -21,14 +33,18 @@ export default function Login() {
     try {
       const response = await loginUser(credentials);
       localStorage.setItem("auth_token", response.auth_token);
-      navigate("/");
+     
+      setLoginSuccess(true);
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Invalid credentials");
+      setLoginSuccess(false);
     } finally {
       setIsLoading(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-gray-900">
