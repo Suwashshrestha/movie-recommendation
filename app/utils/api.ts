@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://54.172.171.231";
+const API_BASE_URL = "dke40cs2in8nq.cloudfront.net";
 
 
 interface OTPVerification {
