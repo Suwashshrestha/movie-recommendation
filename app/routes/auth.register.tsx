@@ -54,7 +54,7 @@ export default function Register() {
       
       // Redirect to login after successful activation
       setTimeout(() => {
-        navigate("/auth/login");
+        navigate("/user/review");
       }, 2000);
 
     } catch (error) {
@@ -103,7 +103,7 @@ export default function Register() {
                 <input
                   id="otp"
                   name="otp"
-                  type="text"
+                  type="otp"
                   required
                   maxLength={6}
                   className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
