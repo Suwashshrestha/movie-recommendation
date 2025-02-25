@@ -61,7 +61,7 @@ interface MovieResponse {
 interface Movie {
   id: string;
   title: string;
-  poster_path: string;
+  posterUri?: string;
   rating: number;
   year: string;
   genre: string[];
@@ -205,7 +205,95 @@ export const getUserProfile = async (): Promise<UserProfile> => {
   }
 };
 
+export interface MovieSearch {
+  id: string;
+  movie_index: number;
+  ems_id: string;
+  title: string;
+  synopsis?: string;
+  director?: string;
+  producer?: string;
+  screenwriter?: string;
+  distributor?: string;
+  rating?: string;
+  original_language?: string;
+  overview?: string;
+  tagline?: string;
+  genres: string[];
+  production_companies: string[];
+  production_countries: string[];
+  spoken_languages: string[];
+  cast: string[];
+  director_of_photography?: string;
+  writers?: string[];
+  producers?: string[];
+  music_composer?: string;
+  avg_rating?: number;
+  posterUri?: string;
+  audienceScore?: {
+    score: number;
+    count: number;
+  };
+  criticsScore?: {
+    score: number;
+    count: number;
+  };
+  mediaUrl?: string;
+  popularity_score?: number;
+  total_interactions?: number;
+  weekly_views?: number;
+  last_interaction?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SearchResponse {
+  results: Movie[];
+  count: number;
+  next: string | null;
+  previous: string | null;
+}
+
+export async function searchMovies(
+  query: string,
+  page: number = 1,
+  pageSize: number = 10
+): Promise<SearchResponse> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    page_size: pageSize.toString(),
+    title: query,
+  });
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/movies/search/?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Search failed");
+  }
+
+  return response.json();
+}
 
 
+export async function getMovieById(id: string): Promise<MovieSearch> {
+  const response = await fetch(`${API_BASE_URL}/api/movies/${id}/`);
 
+  if (!response.ok) {
+    throw new Error("Failed to fetch movie details");
+  }
 
+  return response.json();
+}
+export async function getRecommendedMovies(movieIndex: number): Promise<MovieSearch[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/recommend/get_recommendations_by_movie_idx/?page=1&page_size=10&movie_index=${movieIndex}&limit=5`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch recommended movies");
+  }
+
+  return response.json();
+}

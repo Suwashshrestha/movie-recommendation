@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { fetchMovies } from "../utils/api";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { SearchBar } from "~/components/Searchbar";
+
 
 interface Movie {
   id: string;
   title: string;
-  poster_path: string;
+  posterUri: string;
   rating: number;
   year: string;
   genre: string[];
@@ -25,7 +27,7 @@ function MovieCard({ movie }: { movie: Movie }) {
     <div className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105">
       <div className="relative aspect-[2/3]">
         <img
-          src={movie.poster_path}
+          src={movie.posterUri}
           alt={movie.title}
           className="w-full h-full object-cover"
         />
@@ -73,6 +75,8 @@ export default function Discover() {
 
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 12;
+
+
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -148,13 +152,7 @@ export default function Discover() {
         {/* Search and Filter Section */}
         <div className="mb-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Search movies..."
-                className="w-full md:w-96 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
+            <SearchBar />
             <div className="flex gap-2">
               {["All", "Action", "Comedy", "Drama", "Sci-Fi"].map((genre) => (
                 <button
