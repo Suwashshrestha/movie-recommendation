@@ -31,7 +31,7 @@ function MovieCard({ movie }: { movie: Movie }) {
           alt={movie.title}
           className="w-full h-full object-cover"
         />
-         <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-4 right-4 z-10">
           <button
             onClick={handleFavoriteClick}
             onMouseEnter={() => setShowTooltip(true)}
@@ -82,12 +82,12 @@ export default function Discover() {
     const loadMovies = async () => {
       setIsLoading(true);
       setError(null);
-  
+
       try {
         const response = await fetchMovies(page, pageSize);
         console.log("Fetched Movies:", response);
         setMovies(response.results);
-        
+
         setTotalPages(Math.ceil(response.count / pageSize));
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -96,7 +96,7 @@ export default function Discover() {
         setIsLoading(false);
       }
     };
-  
+
     loadMovies();
   }, [page]);
 
@@ -150,19 +150,20 @@ export default function Discover() {
     <div className="min-h-screen pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search and Filter Section */}
-        <div className="mb-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="mb-10 space-y-4">
+          <div className="flex flex-col space-y-4">
             <SearchBar />
-            <div className="flex gap-2">
+            {/* Genre Filter */}
+            <div className="flex flex-wrap gap-2">
               {["All", "Action", "Comedy", "Drama", "Sci-Fi"].map((genre) => (
                 <button
                   key={genre}
                   onClick={() => setSelectedGenre(genre.toLowerCase())}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedGenre === genre.toLowerCase()
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+            ${selectedGenre === genre.toLowerCase()
+                      ? "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
+                      : "bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    } backdrop-blur-sm`}
                 >
                   {genre}
                 </button>
@@ -170,6 +171,49 @@ export default function Discover() {
             </div>
           </div>
         </div>
+
+        <div className="mb-6 md:hidden">
+  <div className="flex justify-center items-center gap-1.5">
+    <button
+      onClick={() => setPage(1)}
+      disabled={page === 1 || isLoading}
+      className="px-2 py-1.5 text-xs font-medium text-white bg-purple-600 
+               rounded-md hover:bg-purple-700 disabled:opacity-50 
+               disabled:cursor-not-allowed transition-colors"
+    >
+      First
+    </button>
+    {getPageNumbers().map((pageNum, index) => (
+      pageNum === '...' ? (
+        <span key={`ellipsis-${index}`} className="px-2 py-1.5 text-gray-400">
+          ...
+        </span>
+      ) : (
+        <button
+          key={`page-${pageNum}`}
+          onClick={() => setPage(Number(pageNum))}
+          disabled={isLoading}
+          className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors
+            ${page === pageNum
+              ? 'bg-purple-600 text-white'
+              : 'text-gray-300 hover:bg-gray-700'
+            }`}
+        >
+          {pageNum}
+        </button>
+      )
+    ))}
+    <button
+      onClick={() => setPage(totalPages)}
+      disabled={page === totalPages || isLoading}
+      className="px-2 py-1.5 text-xs font-medium text-white bg-purple-600 
+               rounded-md hover:bg-purple-700 disabled:opacity-50 
+               disabled:cursor-not-allowed transition-colors"
+    >
+      Last
+    </button>
+  </div>
+</div>
 
         {/* Loading and Error Messages */}
         {isLoading && (
@@ -180,49 +224,49 @@ export default function Discover() {
         )}
 
         {/* Movies Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredMovies.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
 
         {/* Pagination Controls */}
-        <div className="mt-8 flex justify-center items-center gap-2">
-      <button
-        onClick={() => setPage(1)}
-        disabled={page === 1 || isLoading}
-        className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        First
-      </button>
-      {getPageNumbers().map((pageNum, index) => (
-        pageNum === '...' ? (
-          <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
-            ...
-          </span>
-        ) : (
+        <div className="hidden md:flex mt-8 justify-center items-center gap-2">
           <button
-            key={`page-${pageNum}`}
-            onClick={() => setPage(Number(pageNum))}
-            disabled={isLoading}
-            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors
-              ${page === pageNum 
-                ? 'bg-purple-600 text-white' 
-                : 'text-gray-300 hover:bg-gray-700'
-              }`}
+            onClick={() => setPage(1)}
+            disabled={page === 1 || isLoading}
+            className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {pageNum}
+            First
           </button>
-        )
-      ))}
-      <button
-        onClick={() => setPage(totalPages)}
-        disabled={page === totalPages || isLoading}
-        className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Last
-      </button>
-    </div>
+          {getPageNumbers().map((pageNum, index) => (
+            pageNum === '...' ? (
+              <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
+                ...
+              </span>
+            ) : (
+              <button
+                key={`page-${pageNum}`}
+                onClick={() => setPage(Number(pageNum))}
+                disabled={isLoading}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors
+              ${page === pageNum
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-300 hover:bg-gray-700'
+                  }`}
+              >
+                {pageNum}
+              </button>
+            )
+          ))}
+          <button
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages || isLoading}
+            className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Last
+          </button>
+        </div>
       </div>
     </div>
   );

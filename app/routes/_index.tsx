@@ -73,27 +73,33 @@ export default function Index() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 to-gray-900/90 z-10" />
-        <div className="absolute inset-0 overflow-hidden grid grid-cols-2 md:grid-cols-4 gap-2 p-4">
-          {!isLoading && getCurrentMovies().map((movie, index) => (
-            <div key={movie.id} className="relative h-full w-full overflow-hidden rounded-lg">
-              <img
-                src={movie.posterUri } 
-                alt={movie.title}
-                className="w-full h-full object-cover transition-all duration-1000 ease-in-out hover:scale-110"
-                style={{
-                  transform: `scale(${1 + Math.random() * 0.05})`,
-                  transition: 'transform 20s ease-in-out'
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="text-white text-sm md:text-base font-semibold truncate">{movie.title}</h3>
-                </div>
-              </div>
-            </div>
-          ))}
+  <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 to-gray-900/90 z-10" />
+  <div className="absolute inset-0 overflow-hidden grid grid-cols-2 gap-2 p-4">
+    {!isLoading && getCurrentMovies().slice(0, 4).map((movie, index) => (
+      <div 
+        key={movie.id} 
+        className="relative aspect-[2/3] w-full overflow-hidden rounded-lg"
+      >
+        <img
+          src={movie.posterUri} 
+          alt={movie.title}
+          className="w-full h-full object-cover transition-all duration-1000 ease-in-out hover:scale-110"
+          style={{
+            transform: `scale(${1 + Math.random() * 0.05})`,
+            transition: 'transform 20s ease-in-out'
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent 
+                      opacity-0 hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4">
+            <h3 className="text-white text-xs md:text-base font-semibold truncate">
+              {movie.title}
+            </h3>
+          </div>
         </div>
+      </div>
+    ))}
+  </div>
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6">
