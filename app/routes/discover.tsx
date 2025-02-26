@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
+<<<<<<< Updated upstream
 import { fetchMovies } from "../utils/api";
-import { HeartIcon } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import { SearchBar } from "~/components/Searchbar";
+=======
+import { fetchMovies,trackMovieInteraction } from "../utils/api";
 
+import { SearchBar } from "~/components/Searchbar";
+import { Link } from "@remix-run/react";
+import { FavoriteIcon } from "../components/Favorite"
+
+
+>>>>>>> Stashed changes
 
 interface Movie {
   id: string;
@@ -15,24 +21,44 @@ interface Movie {
 }
 
 function MovieCard({ movie }: { movie: Movie }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+<<<<<<< Updated upstream
+=======
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsFavorite(!isFavorite);
-    // TODO: Add API call to update favorites
+  const handleInteractionView = async () => {
+    try {
+      await trackMovieInteraction(movie.id, 'VIEW');
+    } catch (error) {
+      console.error('Failed to track view interaction:', error);
+      // Silently fail as this shouldn't block user navigation
+    }
   };
+  const handleInteractionFavorite = async () => {
+    try {
+        await trackMovieInteraction(movie.id, 'FAVORITE' );
+    } catch (error){
+        console.error('Failed ',error);
+    }
+    };
+  
+  
+>>>>>>> Stashed changes
   return (
-    <div className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105">
+<Link
+      to={`/movies/${movie.id}`} 
+      onClick={handleInteractionView}
+      
+      className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105"
+    >
       <div className="relative aspect-[2/3]">
         <img
           src={movie.posterUri}
           alt={movie.title}
           className="w-full h-full object-cover"
         />
+<<<<<<< Updated upstream
+=======
         <div className="absolute top-4 right-4 z-10">
-          <button
+          {/* <button
             onClick={handleFavoriteClick}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
@@ -48,8 +74,12 @@ function MovieCard({ movie }: { movie: Movie }) {
                 {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               </div>
             )}
-          </button>
+          </button> */}
+          <div onClick={handleInteractionFavorite} style={{ cursor: "pointer"}}>
+          <FavoriteIcon />
+          </div>
         </div>
+>>>>>>> Stashed changes
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
@@ -62,7 +92,7 @@ function MovieCard({ movie }: { movie: Movie }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -150,11 +180,24 @@ export default function Discover() {
     <div className="min-h-screen pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search and Filter Section */}
+<<<<<<< Updated upstream
+        <div className="mb-10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="relative">
+              <input
+                type="search"
+                placeholder="Search movies..."
+                className="w-full md:w-96 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+            <div className="flex gap-2">
+=======
         <div className="mb-10 space-y-4">
-          <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 md:flex md:flex-row md:space-y-0 md:space-x-4">
             <SearchBar />
             {/* Genre Filter */}
             <div className="flex flex-wrap gap-2">
+>>>>>>> Stashed changes
               {["All", "Action", "Comedy", "Drama", "Sci-Fi"].map((genre) => (
                 <button
                   key={genre}

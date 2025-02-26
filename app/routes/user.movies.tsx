@@ -5,8 +5,14 @@ import { fetchMovies } from '~/utils/api';
 interface Movie {
   id: string;
   title: string;
+
+  
+
+  posterUri: string;
+  rating: number;
   year: string;
-  poster_path: string;
+  genre: string[];
+
 }
 
 export default function ReviewMovies() {
@@ -104,7 +110,9 @@ export default function ReviewMovies() {
               <div className="relative rounded-lg overflow-hidden w-full max-w-[260px] mx-auto">
                 <div className="aspect-[2/3] relative">
                   <img
-                    src={currentMovie.poster_path}
+
+                    src={currentMovie.posterUri}
+
                     alt={currentMovie.title}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
