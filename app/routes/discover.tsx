@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-<<<<<<< Updated upstream
+
 import { fetchMovies } from "../utils/api";
-=======
-import { fetchMovies,trackMovieInteraction } from "../utils/api";
+
+import { fetchMovies, trackMovieInteraction } from "../utils/api";
 
 import { SearchBar } from "~/components/Searchbar";
 import { Link } from "@remix-run/react";
 import { FavoriteIcon } from "../components/Favorite"
 
 
->>>>>>> Stashed changes
+
 
 interface Movie {
   id: string;
@@ -21,8 +21,7 @@ interface Movie {
 }
 
 function MovieCard({ movie }: { movie: Movie }) {
-<<<<<<< Updated upstream
-=======
+
 
   const handleInteractionView = async () => {
     try {
@@ -34,19 +33,19 @@ function MovieCard({ movie }: { movie: Movie }) {
   };
   const handleInteractionFavorite = async () => {
     try {
-        await trackMovieInteraction(movie.id, 'FAVORITE' );
-    } catch (error){
-        console.error('Failed ',error);
+      await trackMovieInteraction(movie.id, 'FAVORITE');
+    } catch (error) {
+      console.error('Failed ', error);
     }
-    };
-  
-  
->>>>>>> Stashed changes
+  };
+
+
+
   return (
-<Link
-      to={`/movies/${movie.id}`} 
+    <Link
+      to={`/movies/${movie.id}`}
       onClick={handleInteractionView}
-      
+
       className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105"
     >
       <div className="relative aspect-[2/3]">
@@ -55,8 +54,7 @@ function MovieCard({ movie }: { movie: Movie }) {
           alt={movie.title}
           className="w-full h-full object-cover"
         />
-<<<<<<< Updated upstream
-=======
+
         <div className="absolute top-4 right-4 z-10">
           {/* <button
             onClick={handleFavoriteClick}
@@ -75,11 +73,11 @@ function MovieCard({ movie }: { movie: Movie }) {
               </div>
             )}
           </button> */}
-          <div onClick={handleInteractionFavorite} style={{ cursor: "pointer"}}>
-          <FavoriteIcon />
+          <div onClick={handleInteractionFavorite} style={{ cursor: "pointer" }}>
+            <FavoriteIcon />
           </div>
         </div>
->>>>>>> Stashed changes
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
@@ -180,137 +178,130 @@ export default function Discover() {
     <div className="min-h-screen pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search and Filter Section */}
-<<<<<<< Updated upstream
-        <div className="mb-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder="Search movies..."
-                className="w-full md:w-96 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            <div className="flex gap-2">
-=======
-        <div className="mb-10 space-y-4">
-        <div className="flex flex-col space-y-4 md:flex md:flex-row md:space-y-0 md:space-x-4">
-            <SearchBar />
-            {/* Genre Filter */}
-            <div className="flex flex-wrap gap-2">
->>>>>>> Stashed changes
-              {["All", "Action", "Comedy", "Drama", "Sci-Fi"].map((genre) => (
-                <button
-                  key={genre}
-                  onClick={() => setSelectedGenre(genre.toLowerCase())}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+
+       
+
+              <div className="mb-10 space-y-4">
+                <div className="flex flex-col space-y-4 md:flex md:flex-row md:space-y-0 md:space-x-4">
+                  <SearchBar />
+                  {/* Genre Filter */}
+                  <div className="flex flex-wrap gap-2">
+
+                    {["All", "Action", "Comedy", "Drama", "Sci-Fi"].map((genre) => (
+                      <button
+                        key={genre}
+                        onClick={() => setSelectedGenre(genre.toLowerCase())}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
             ${selectedGenre === genre.toLowerCase()
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
-                      : "bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white"
-                    } backdrop-blur-sm`}
+                            ? "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
+                            : "bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white"
+                          } backdrop-blur-sm`}
+                      >
+                        {genre}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-6 md:hidden">
+                <div className="flex justify-center items-center gap-1.5">
+                  <button
+                    onClick={() => setPage(1)}
+                    disabled={page === 1 || isLoading}
+                    className="px-2 py-1.5 text-xs font-medium text-white bg-purple-600 
+               rounded-md hover:bg-purple-700 disabled:opacity-50 
+               disabled:cursor-not-allowed transition-colors"
+                  >
+                    First
+                  </button>
+                  {getPageNumbers().map((pageNum, index) => (
+                    pageNum === '...' ? (
+                      <span key={`ellipsis-${index}`} className="px-2 py-1.5 text-gray-400">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={`page-${pageNum}`}
+                        onClick={() => setPage(Number(pageNum))}
+                        disabled={isLoading}
+                        className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors
+            ${page === pageNum
+                            ? 'bg-purple-600 text-white'
+                            : 'text-gray-300 hover:bg-gray-700'
+                          }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  ))}
+                  <button
+                    onClick={() => setPage(totalPages)}
+                    disabled={page === totalPages || isLoading}
+                    className="px-2 py-1.5 text-xs font-medium text-white bg-purple-600 
+               rounded-md hover:bg-purple-700 disabled:opacity-50 
+               disabled:cursor-not-allowed transition-colors"
+                  >
+                    Last
+                  </button>
+                </div>
+              </div>
+
+              {/* Loading and Error Messages */}
+              {isLoading && (
+                <div className="text-center text-gray-300">Loading movies...</div>
+              )}
+              {error && (
+                <div className="text-center text-red-500">{error}</div>
+              )}
+
+              {/* Movies Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {filteredMovies.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="hidden md:flex mt-8 justify-center items-center gap-2">
+                <button
+                  onClick={() => setPage(1)}
+                  disabled={page === 1 || isLoading}
+                  className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {genre}
+                  First
                 </button>
-              ))}
+                {getPageNumbers().map((pageNum, index) => (
+                  pageNum === '...' ? (
+                    <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={`page-${pageNum}`}
+                      onClick={() => setPage(Number(pageNum))}
+                      disabled={isLoading}
+                      className={`px-3 py-2 text-sm font-medium rounded-md transition-colors
+              ${page === pageNum
+                          ? 'bg-purple-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                        }`}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                ))}
+                <button
+                  onClick={() => setPage(totalPages)}
+                  disabled={page === totalPages || isLoading}
+                  className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Last
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        
 
-        <div className="mb-6 md:hidden">
-  <div className="flex justify-center items-center gap-1.5">
-    <button
-      onClick={() => setPage(1)}
-      disabled={page === 1 || isLoading}
-      className="px-2 py-1.5 text-xs font-medium text-white bg-purple-600 
-               rounded-md hover:bg-purple-700 disabled:opacity-50 
-               disabled:cursor-not-allowed transition-colors"
-    >
-      First
-    </button>
-    {getPageNumbers().map((pageNum, index) => (
-      pageNum === '...' ? (
-        <span key={`ellipsis-${index}`} className="px-2 py-1.5 text-gray-400">
-          ...
-        </span>
-      ) : (
-        <button
-          key={`page-${pageNum}`}
-          onClick={() => setPage(Number(pageNum))}
-          disabled={isLoading}
-          className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors
-            ${page === pageNum
-              ? 'bg-purple-600 text-white'
-              : 'text-gray-300 hover:bg-gray-700'
-            }`}
-        >
-          {pageNum}
-        </button>
-      )
-    ))}
-    <button
-      onClick={() => setPage(totalPages)}
-      disabled={page === totalPages || isLoading}
-      className="px-2 py-1.5 text-xs font-medium text-white bg-purple-600 
-               rounded-md hover:bg-purple-700 disabled:opacity-50 
-               disabled:cursor-not-allowed transition-colors"
-    >
-      Last
-    </button>
-  </div>
-</div>
-
-        {/* Loading and Error Messages */}
-        {isLoading && (
-          <div className="text-center text-gray-300">Loading movies...</div>
-        )}
-        {error && (
-          <div className="text-center text-red-500">{error}</div>
-        )}
-
-        {/* Movies Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredMovies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
-        </div>
-
-        {/* Pagination Controls */}
-        <div className="hidden md:flex mt-8 justify-center items-center gap-2">
-          <button
-            onClick={() => setPage(1)}
-            disabled={page === 1 || isLoading}
-            className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            First
-          </button>
-          {getPageNumbers().map((pageNum, index) => (
-            pageNum === '...' ? (
-              <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
-                ...
-              </span>
-            ) : (
-              <button
-                key={`page-${pageNum}`}
-                onClick={() => setPage(Number(pageNum))}
-                disabled={isLoading}
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors
-              ${page === pageNum
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-300 hover:bg-gray-700'
-                  }`}
-              >
-                {pageNum}
-              </button>
-            )
-          ))}
-          <button
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages || isLoading}
-            className="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Last
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+          );
 }
