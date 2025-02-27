@@ -50,11 +50,13 @@ export default function Index() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % Math.ceil(movies.length / 5));
+    const totalSlides = Math.ceil(moviesTrend.length / 5);
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + Math.ceil(movies.length / 5)) % Math.ceil(movies.length / 5));
+    const totalSlides = Math.ceil(moviesTrend.length / 5);
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   useEffect(() => {
@@ -199,7 +201,7 @@ export default function Index() {
             </div>
             <button
               onClick={prevSlide}
-              className="absolute left-9 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-4 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-4 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

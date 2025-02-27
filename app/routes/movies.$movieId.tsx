@@ -1,8 +1,10 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
 import { getMovieById, type MovieSearch, getRecommendedMovies } from "~/utils/api";
-import { trackMovieInteraction, submitMovieRating } from "~/utils/api";
+import { trackMovieInteraction, submitMovieRating, createFavoriteMovie } from "~/utils/api";
 import { FavoriteIcon } from "../components/Favorite"
+import { WatchlistIcon } from "../components/Watchlist"
+
 import { useState } from "react";
 interface LoaderData {
   movie: MovieSearch;
@@ -15,8 +17,6 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   try {
     const movie = await getMovieById(movieId);
-
-
     let recommendedMovies: MovieSearch[] = [];
     if (movie.movie_index) {
       recommendedMovies = await getRecommendedMovies(movie.movie_index);
@@ -67,6 +67,7 @@ function RecommendedMovieCard({ movie }: { movie: MovieSearch }) {
 export default function MovieDetails() {
   const { movie, recommendedMovies } = useLoaderData<LoaderData>();
   const [userRating, setUserRating] = useState<number>(0);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleInteractionFavorite = async () => {
     try {
@@ -75,6 +76,14 @@ export default function MovieDetails() {
       console.error('Failed ', error);
     }
   };
+  const handleInteractionWatchlist = async () => {
+    try {
+      await trackMovieInteraction(movie.id, 'WATCHLIST');
+    } catch (error) {
+      console.error('Failed ', error);
+    }
+  };
+
 
   const handleRating = async (rating: number) => {
     try {
@@ -100,6 +109,30 @@ export default function MovieDetails() {
 
     } catch (error) {
       console.error('Failed to save rating:', error);
+    }
+  };
+
+  const handleFavoriteClick = async () => {
+    try {
+      await createFavoriteMovie({
+        movie: {
+          ems_id: movie.id,
+          title: movie.title,
+          synopsis: movie.synopsis || "",
+          director: movie.director || "",
+          rating: movie.rating || "",
+          original_language: movie.original_language || "",
+          movie_index: movie.movie_index || 0,
+          tagline: movie.tagline || "",
+          genres: movie.genres || {},
+          cast: movie.cast || {},
+          avg_rating: movie.avg_rating?.toString() || ""
+        },
+        movie_id: parseInt(movie.id)
+      });
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error('Error updating favorite:', error);
     }
   };
 
@@ -133,9 +166,25 @@ export default function MovieDetails() {
                 </div>
               )}
               <div className="absolute top-4 right-4 z-10">
-                <div onClick={handleInteractionFavorite} style={{ cursor: "pointer" }}>
+                <button
+                  onClick={() => {
+                    handleInteractionFavorite();
+                    handleFavoriteClick();
+                  }}
+                  className="cursor-pointer focus:outline-none"
+                  aria-label="Add to favorites"
+                >
                   <FavoriteIcon />
-                </div>
+                </button>
+              </div>
+              <div className="absolute top-4 left-4 z-10">
+              <button
+                onClick={handleInteractionWatchlist}
+                className="cursor-pointer focus:outline-none"
+                aria-label="Add to watchlist"
+              >
+                <WatchlistIcon />
+              </button>
               </div>
               {/* Rating Section */}
               <div className="mt-6 bg-gray-800 rounded-lg p-4">
@@ -148,7 +197,7 @@ export default function MovieDetails() {
               <div className="mt-4 border-t border-gray-700 pt-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Rate this Movie</h3>
                 <div className="flex items-center space-x-1">
-                  {[1, 2, 3, 4, 5,6,7,8,9,10].map((star) => (
+                  {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       onClick={() => handleRating(star)}

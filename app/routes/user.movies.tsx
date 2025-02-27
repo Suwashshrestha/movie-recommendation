@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@remix-run/react';
-import { XMarkIcon, } from '@heroicons/react/24/outline';
+
 import { getTrendingMovies, updateUserMoviePreferences, MovieTrending } from '../utils/api';
 
 export default function ReviewMovies() {
@@ -12,6 +12,9 @@ export default function ReviewMovies() {
   const [progress, setProgress] = useState(0);
 
   const navigate = useNavigate();
+
+
+  const taste = 'AWFUL' | 'MEH' | 'GOOD' | 'AMAZING' | 'HAVENT SEEN'
 
   useEffect(() => {
     loadMovies();
@@ -37,14 +40,41 @@ export default function ReviewMovies() {
     }
   };
 
-  const handleRating = async (rating: string) => {
+  const handleRating = async (taste: string) => {
     if (!movies[currentIndex]) return;
-
-    setSelectedRating(rating);
+  
+    const ratingMap: { [key: string]: string } = {
+      'Awful': 'AWFUL',
+      'Meh': 'MEH',
+      'Good': 'GOOD',
+      'Amazing': 'AMAZING',
+    };
+  
+    const selectedRating = ratingMap[taste] || 'HAVENT SEEN';
+    console.log('Updating movie preferences:', {
+      movie: movies[currentIndex].id,
+      taste: selectedRating,
+    });
+  
+    setSelectedRating(taste);
     try {
-      await updateUserMoviePreferences(movies[currentIndex].id, rating);
+      const userId = "current";
+      // Construct the preferences object according to the expected structure
+      const payload = {
+        movie: movies[currentIndex].id, // Ensure this is the correct type (number)
+        taste: selectedRating 
+      };
+
+      const response = await updateUserMoviePreferences(userId, payload);
+      console.log('Response from API:', response);
+    
     } catch (error) {
       console.error('Failed to submit rating:', error);
+      if (error instanceof Error) {
+        setError(`Error: ${error.message}`); // Provide more specific error message
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+      }
     } finally {
       setTimeout(() => {
         setSelectedRating(null);
@@ -57,7 +87,7 @@ export default function ReviewMovies() {
     if (currentIndex < movies.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
-      navigate('/auth/login'); 
+      navigate('/'); 
     }
   };
 
@@ -100,9 +130,6 @@ export default function ReviewMovies() {
                 <h2 className="text-xl font-semibold text-center">{currentMovie.title}</h2>
                 <p className="text-gray-300 text-center">{currentMovie.year}</p>
               </div>
-              <button onClick={nextMovie} className="absolute top-4 right-4 text-white bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
-                <XMarkIcon className="h-6 w-6" />
-              </button>
             </div>
 
             <div className="mt-8 flex justify-center items-center gap-6">
@@ -129,7 +156,7 @@ export default function ReviewMovies() {
               ))}
             </div>
 
-            <button onClick={nextMovie} className="mt-8 w-full bg-gray-800/50 text-gray-300 py-3 rounded-lg hover:bg-gray-700/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:text-white hover:shadow-lg">
+            <button onClick={() => handleRating('Haven\'t Seen')} className="mt-8 w-full bg-gray-800/50 text-gray-300 py-3 rounded-lg hover:bg-gray-700/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:text-white hover:shadow-lg">
               Haven't Seen
             </button>
           </>

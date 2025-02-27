@@ -2,6 +2,28 @@ import axios from "axios";
 
 const API_BASE_URL = "https://d2448fnikplodi.cloudfront.net";
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('auth_token');
+  return {
+    'Authorization': `Token ${token}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+};
+
+const handleError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      throw new Error('Session expired. Please login again.');
+    }
+    if (error.response?.data) {
+      throw new Error(Object.values(error.response.data).flat().join(', '));
+    }
+    throw new Error('Network error - please try again');
+  }
+  throw new Error('An unexpected error occurred');
+};
 
 interface OTPVerification {
   otp: string;
@@ -37,16 +59,7 @@ export const registerUser = async (userData: {
     });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.data) {
-        // Handle validation errors from API
-        throw new Error(Object.values(error.response.data).flat().join(", "));
-      } else {
-        throw new Error("Network error - please try again");
-      }
-    } else {
-      throw new Error("An unexpected error occurred");
-    }
+    handleError(error);
   }
 };
 
@@ -66,6 +79,7 @@ interface Movie {
   year: string;
   genre: string[];
 }
+
 export const fetchMovies = async (page: number = 1, pageSize: number = 12): Promise<MovieResponse> => {
   try {
     console.log(`Fetching movies page ${page} with size ${pageSize}`);
@@ -87,15 +101,7 @@ export const fetchMovies = async (page: number = 1, pageSize: number = 12): Prom
     return response.data;
   } catch (error) {
     console.error("FetchMovies Error:", error);
-
-    if (axios.isAxiosError(error)) {
-      if (error.response?.data) {
-        console.error("API Error Response:", error.response.data);
-        throw new Error(Object.values(error.response.data).flat().join(", "));
-      }
-      throw new Error("Network error - please try again");
-    }
-    throw new Error("An unexpected error occurred");
+    handleError(error);
   }
 };
 
@@ -121,19 +127,9 @@ export const activation = async (verificationData: OTPVerification): Promise<Ver
     };
   } catch (error) {
     console.error("OTP Verification Error:", error);
-
-    if (axios.isAxiosError(error)) {
-      if (error.response?.data) {
-        console.error("API Error Response:", error.response.data);
-        throw new Error(Object.values(error.response.data).flat().join(", "));
-      }
-      throw new Error("Network error - please try again");
-    }
-    throw new Error("An unexpected error occurred during OTP verification");
+    handleError(error);
   }
 };
-
-
 
 export const loginUser = async (credentials: LoginCredentials) => {
   try {
@@ -154,13 +150,7 @@ export const loginUser = async (credentials: LoginCredentials) => {
     return response.data;
   } catch (error) {
     console.error("Login Error:", error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(", "));
-      }
-      throw new Error("Network error - please try again");
-    }
-    throw new Error("An unexpected error occurred");
+    handleError(error);
   }
 };
 
@@ -180,31 +170,15 @@ export const getUserProfile = async (): Promise<UserProfile> => {
   try {
     console.log('Fetching user profile...');
     const response = await axios.get(`${API_BASE_URL}/auth/users/me/`, {
-      headers: {
-        'Authorization': `Token ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     console.log('User profile fetched successfully');
     return response.data;
   } catch (error) {
     console.error('Profile fetch error:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Session expired. Please login again.');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred');
+    handleError(error);
   }
-
-  return response.json();
 };
 
 interface InteractionResponse {
@@ -215,8 +189,7 @@ export async function trackMovieInteraction(
   movieId: string,
   interactionType: 'VIEW' | 'RECOMMEND' | 'FAVORITE' | 'WATCHLIST' | 'WATCHED'
 ): Promise<InteractionResponse> {
-  const token = localStorage.getItem('auth_token');
-  
+
   try {
     const response = await axios.get<InteractionResponse>(
       `${API_BASE_URL}/api/recommend/${movieId}/track_interaction/`,
@@ -224,29 +197,17 @@ export async function trackMovieInteraction(
         params: {
           interaction_type: interactionType
         },
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          'Authorization': `Token ${token}`,
-        },
+        headers: localStorage.getItem('auth_token') ? getAuthHeaders() : {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
       }
     );
     
     return response.data;
   } catch (error) {
     console.error('Movie interaction tracking error:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        // Handle unauthorized access
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to track interactions');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while tracking movie interaction');
+    handleError(error);
   }
 }
 
@@ -321,7 +282,6 @@ export async function searchMovies(
   return response.json();
 }
 
-
 export async function getMovieById(id: string): Promise<MovieSearch> {
   const response = await fetch(`${API_BASE_URL}/api/movies/${id}/`);
 
@@ -331,6 +291,7 @@ export async function getMovieById(id: string): Promise<MovieSearch> {
 
   return response.json();
 }
+
 export async function getRecommendedMovies(movieIndex: number): Promise<MovieSearch[]> {
   const response = await fetch(
     `${API_BASE_URL}/api/recommend/get_recommendations_by_movie_idx/?page=1&page_size=10&movie_index=${movieIndex}&limit=5`
@@ -368,38 +329,21 @@ interface FavoriteResponse {
 }
 
 export async function updateFavoriteMovie(movieId: string, movieData: Movie): Promise<FavoriteResponse> {
-  const token = localStorage.getItem('auth_token');
-
   try {
     const response = await axios.put<FavoriteResponse>(
       `${API_BASE_URL}/api/favorites/${movieId}/`,
       movieData,
       {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          'Authorization': `Token ${token}`,
-        },
+        headers: getAuthHeaders(),
       }
     );
     
     return response.data;
   } catch (error) {
     console.error('Failed to update favorite movie:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to update favorites');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while updating favorite');
+    handleError(error);
   }
 }
-
 
 type Gender = 'M' | 'F' | 'O' | 'P';
 type WatchFrequency = 'DAILY' | 'WEEKLY' | 'OCCASIONALLY' | 'FEW TIMES A MONTH' | 'MONTHLY' | 'YEARLY';
@@ -411,11 +355,8 @@ export async function updateUserPreferences(
     gender: Gender;
     favoriteGenres: Record<string, unknown>;
     watchFrequency: WatchFrequency;
-    
   }
 ): Promise<{ success: boolean; message: string }> {
-  const token = localStorage.getItem('auth_token');
-
   try {
     const response = await axios.post(`${API_BASE_URL}/api/preferences/`,
       {
@@ -423,14 +364,9 @@ export async function updateUserPreferences(
         gender: preferences.gender,
         favorite_genres: preferences.favoriteGenres,
         watch_frequency: preferences.watchFrequency,
-       
       },
       {
-        headers: {
-          "Content-Type": "application/json",
-          'Accept': "application/json",
-          'Authorization': `Token ${token}`,
-        },
+        headers: getAuthHeaders(),
       }
     );
     
@@ -440,23 +376,12 @@ export async function updateUserPreferences(
     };
   } catch (error) {
     console.error('Failed to update user preferences:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to update preferences');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while updating preferences');
+    handleError(error);
   }
 }
 
-
 export interface MovieTrending {
-  id: string; // Assuming ID is a string
+  id: string;
   ems_id: string;
   title: string;
   synopsis?: string;
@@ -469,7 +394,7 @@ export interface MovieTrending {
   movie_index?: string;
   overview?: string;
   tagline?: string;
-  genres?: { [key: string]: string }; // Adjust based on actual structure
+  genres?: { [key: string]: string };
   production_companies?: { [key: string]: string };
   production_countries?: { [key: string]: string };
   spoken_languages?: { [key: string]: string };
@@ -500,8 +425,6 @@ export interface TrendingMoviesResponse {
 }
 
 export async function getTrendingMovies(): Promise<TrendingMoviesResponse> {
-  
-
   try {
     const response = await axios.get<TrendingMoviesResponse>(
       `${API_BASE_URL}/api/movies/trending/`,
@@ -509,7 +432,6 @@ export async function getTrendingMovies(): Promise<TrendingMoviesResponse> {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-       
         },
       }
     );
@@ -517,44 +439,26 @@ export async function getTrendingMovies(): Promise<TrendingMoviesResponse> {
     return response.data;
   } catch (error) {
     console.error('Failed to fetch trending movies:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to view trending movies');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while fetching trending movies');
+    handleError(error);
   }
 }
-
-
+type taste = 'AWFUL' | 'MEH' | 'GOOD' | 'AMAZING' | 'HAVENT SEEN'
 
 export async function updateUserMoviePreferences(
   userId: string,
   preferences: {
-    
-    movieTaste: { movie: number; taste: 'AWFUL' | 'MEH' | 'GOOD' | 'AMAZING' | 'HAVENT SEEN' }[];
+    movie : number;
+    taste: taste;
   }
 ): Promise<{ success: boolean; message: string }> {
-  const token = localStorage.getItem('auth_token');
-
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/movie-taste/`,
+    const response = await axios.post(`${API_BASE_URL}/api/movie-taste/`,
       {
-    
-        movie_taste: preferences.movieTaste,
+        movie: preferences.movie, // Include userId if required by the API
+        taste: preferences.taste, // Ensure this matches the backend's expected structure
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Token ${token}`,
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -564,20 +468,15 @@ export async function updateUserMoviePreferences(
     };
   } catch (error) {
     console.error('Failed to update user preferences:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to update preferences');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while updating preferences');
+    handleError(error); // Ensure this function is defined and handles errors properly
+
+    // Return a consistent error response
+    return {
+      success: false,
+      message: 'Failed to update preferences',
+    };
   }
 }
-
 
 interface RatingMovie {
   ems_id: string;
@@ -605,18 +504,12 @@ interface RatingResponse {
 }
 
 export async function submitMovieRating(ratingData: RatingRequest): Promise<RatingResponse> {
-  const token = localStorage.getItem('auth_token');
-
   try {
     const response = await axios.post<RatingResponse>(
       `${API_BASE_URL}/api/ratings/`,
       ratingData,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Token ${token}`,
-        },
+        headers: getAuthHeaders(),
       }
     );
     
@@ -626,17 +519,7 @@ export async function submitMovieRating(ratingData: RatingRequest): Promise<Rati
     };
   } catch (error) {
     console.error('Failed to submit rating:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to submit ratings');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while submitting rating');
+    handleError(error);
   }
 }
 
@@ -647,6 +530,7 @@ interface UserRating {
   created_at: string;
   updated_at: string;
 }
+
 interface UserRatingsResponse {
   count: number;
   next: string | null;
@@ -665,27 +549,36 @@ export async function getUserRatings(): Promise<UserRatingsResponse> {
     const response = await axios.get<UserRatingsResponse>(
       `${API_BASE_URL}/api/ratings/`,
       {
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: getAuthHeaders(),
       }
     );
 
     return response.data;
   } catch (error) {
     console.error('Failed to fetch user ratings:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        throw new Error('Please log in to view your ratings');
-      }
-      if (error.response?.data) {
-        throw new Error(Object.values(error.response.data).flat().join(', '));
-      }
-      throw new Error('Network error - please try again');
-    }
-    throw new Error('An unexpected error occurred while fetching ratings');
+    handleError(error);
   }
 }
+
+interface CreateFavoriteResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function createFavoriteMovie(movieData: Movie): Promise<CreateFavoriteResponse> {
+  try {
+    const response = await axios.post<CreateFavoriteResponse>(
+      `${API_BASE_URL}/api/favorites/`,
+      movieData,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add favorite movie:', error);
+    handleError(error);
+  }
+}
+

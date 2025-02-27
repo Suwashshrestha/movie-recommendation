@@ -13,7 +13,7 @@ export default function Login() {
       const token = localStorage.getItem("auth_token");
       if (token) {
         console.log("Login successful, redirecting...");
-        navigate("/");
+        navigate("/user/review");
       }
     }
   }, [loginSuccess, navigate]);

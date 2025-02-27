@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form, Link, useNavigate } from "@remix-run/react";
 import { registerUser, activation } from "../utils/api";
+import { loginUser } from "~/utils/api";
 
 
 export default function Register() {
@@ -54,7 +55,7 @@ export default function Register() {
       
       // Redirect to login after successful activation
       setTimeout(() => {
-        navigate("/user/review");
+        navigate("/auth/login");
       }, 2000);
 
     } catch (error) {
