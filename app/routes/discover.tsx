@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { fetchMovies } from "../utils/api";
+
 
 import { fetchMovies, trackMovieInteraction } from "../utils/api";
 
@@ -56,23 +56,7 @@ function MovieCard({ movie }: { movie: Movie }) {
         />
 
         <div className="absolute top-4 right-4 z-10">
-          {/* <button
-            onClick={handleFavoriteClick}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-            className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors group"
-          >
-            {isFavorite ? (
-              <HeartSolidIcon className="w-6 h-6 text-red-500" />
-            ) : (
-              <HeartIcon className="w-6 h-6 text-white group-hover:text-red-500 transition-colors" />
-            )}
-            {showTooltip && (
-              <div className="absolute right-0 top-full mt-2 px-2 py-1 bg-black/75 backdrop-blur-sm text-white text-xs rounded whitespace-nowrap">
-                {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              </div>
-            )}
-          </button> */}
+         
           <div onClick={handleInteractionFavorite} style={{ cursor: "pointer" }}>
             <FavoriteIcon />
           </div>

@@ -399,9 +399,11 @@ export async function updateFavoriteMovie(movieId: string, movieData: Movie): Pr
     throw new Error('An unexpected error occurred while updating favorite');
   }
 }
+
+
 type Gender = 'M' | 'F' | 'O' | 'P';
 type WatchFrequency = 'DAILY' | 'WEEKLY' | 'OCCASIONALLY' | 'FEW TIMES A MONTH' | 'MONTHLY' | 'YEARLY';
-type Taste = 'AWFUL' | 'MEH' | 'GOOD' | 'AMAZING' | 'HAVENT_SEEN';
+
 export async function updateUserPreferences(
   userId: string,
   preferences: {
@@ -409,7 +411,7 @@ export async function updateUserPreferences(
     gender: Gender;
     favoriteGenres: Record<string, unknown>;
     watchFrequency: WatchFrequency;
-    taste: Taste;
+    
   }
 ): Promise<{ success: boolean; message: string }> {
   const token = localStorage.getItem('auth_token');
@@ -421,7 +423,7 @@ export async function updateUserPreferences(
         gender: preferences.gender,
         favorite_genres: preferences.favoriteGenres,
         watch_frequency: preferences.watchFrequency,
-        taste: preferences.taste
+       
       },
       {
         headers: {
@@ -453,3 +455,78 @@ export async function updateUserPreferences(
 }
 
 
+export interface MovieTrending {
+  id: string; // Assuming ID is a string
+  ems_id: string;
+  title: string;
+  synopsis?: string;
+  director?: string;
+  producer?: string;
+  screenwriter?: string;
+  distributor?: string;
+  rating?: string;
+  original_language?: string;
+  movie_index?: string;
+  overview?: string;
+  tagline?: string;
+  genres?: { [key: string]: string }; // Adjust based on actual structure
+  production_companies?: { [key: string]: string };
+  production_countries?: { [key: string]: string };
+  spoken_languages?: { [key: string]: string };
+  cast?: { [key: string]: string };
+  director_of_photography?: string;
+  writers?: string[];
+  producers?: string[];
+  music_composer?: string;
+  avg_rating?: number;
+  posterUri?: string;
+  audienceScore?: { [key: string]: number };
+  criticsScore?: { [key: string]: number };
+  mediaUrl?: string;
+  updated_at?: string;
+  created_at?: string;
+  popularity_score?: number;
+  total_interactions?: number;
+  weekly_views?: number;
+  last_interaction?: string;
+  search_vector?: string;
+}
+
+export interface TrendingMoviesResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: MovieTrending[];
+}
+
+export async function getTrendingMovies(): Promise<TrendingMoviesResponse> {
+  
+
+  try {
+    const response = await axios.get<TrendingMoviesResponse>(
+      `${API_BASE_URL}/api/movies/trending/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+       
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch trending movies:', error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('auth_token');
+        throw new Error('Please log in to view trending movies');
+      }
+      if (error.response?.data) {
+        throw new Error(Object.values(error.response.data).flat().join(', '));
+      }
+      throw new Error('Network error - please try again');
+    }
+    throw new Error('An unexpected error occurred while fetching trending movies');
+  }
+}

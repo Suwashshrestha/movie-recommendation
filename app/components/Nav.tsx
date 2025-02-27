@@ -67,6 +67,17 @@ export function Nav() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
+          <NavLink
+              to="/trending"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-md text-sm font-medium transition-colors
+                ${isActive 
+                  ? 'text-purple-400 bg-purple-500/10' 
+                  : 'text-gray-300 hover:text-purple-400 hover:bg-gray-800'}`
+              }
+            >
+              Trending
+            </NavLink>
             <NavLink
               to="/discover"
               className={({ isActive }) =>
