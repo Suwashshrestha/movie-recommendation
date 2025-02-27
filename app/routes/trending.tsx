@@ -3,7 +3,7 @@ import { getTrendingMovies, TrendingMoviesResponse, MovieTrending } from '../uti
 import { Link } from "@remix-run/react";
 
 
-export default function TrendingPage() {
+export default function Trending() {
 
   const [movies, setMovies] = useState<MovieTrending[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
