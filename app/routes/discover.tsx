@@ -233,7 +233,7 @@ export default function Discover() {
 
               {/* Loading and Error Messages */}
               {isLoading && (
-                <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900">
+                <div className="flexflex-col items-center justify-center bg-gray-900">
                 <div className="text-center">
                   <svg
                     className="mx-auto h-40 w-40 animate-bounce"
