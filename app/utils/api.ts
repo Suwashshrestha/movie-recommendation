@@ -513,7 +513,7 @@ export async function getTrendingMovies(): Promise<TrendingMoviesResponse> {
         },
       }
     );
-
+    console.log("API Response:", response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch trending movies:', error);

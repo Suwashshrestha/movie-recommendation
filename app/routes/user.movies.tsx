@@ -1,24 +1,13 @@
 import { useState, useEffect } from 'react';
 import { XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { fetchMovies } from '~/utils/api';
+import { getTrendingMovies, TrendingMoviesResponse, MovieTrending } from '../utils/api'; 
 
-interface Movie {
-  id: string;
-  title: string;
 
-  
-
-  posterUri: string;
-  rating: number;
-  year: string;
-  genre: string[];
-
-}
 
 export default function ReviewMovies() {
   const [selectedRating, setSelectedRating] = useState<string | null>(null);
-  const [currentMovie, setCurrentMovie] = useState<Movie | null>(null);
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [currentMovie, setCurrentMovie] = useState<MovieTrending[] | null>(null);
+  const [movies, setMovies] = useState<MovieTrending[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +28,7 @@ export default function ReviewMovies() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetchMovies(1, 20); // Load 20 movies initially
+      const response = await getTrendingMovies(); // Load 20 movies initially
       setMovies(response.results);
       setCurrentMovie(response.results[0]);
     } catch (error) {

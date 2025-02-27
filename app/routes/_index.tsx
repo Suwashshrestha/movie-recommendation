@@ -36,7 +36,7 @@ export default function Index() {
         console.log('Full API Response:', data);
 
         // Ensure data.results is defined, otherwise default to an empty array
-        setTrendMovies(Array.isArray(data) ? data : []);
+        setTrendMovies(data.results);
       } catch (err) {
         console.error('Error fetching trending movies:', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -66,7 +66,7 @@ export default function Index() {
         let hasMore = true;
 
         while (hasMore) {
-          const response = await fetchMovies(currentPage, 50); // Fetch 50 movies per page
+          const response = await fetchMovies(currentPage, 20); 
           allMovies = [...allMovies, ...response.results];
 
           // Check if there are more pages

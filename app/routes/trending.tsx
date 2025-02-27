@@ -3,7 +3,7 @@ import { getTrendingMovies, TrendingMoviesResponse, MovieTrending } from '../uti
 import { Link } from "@remix-run/react";
 
 
-export default function Trending() {
+export default function TrendingPage() {
 
   const [movies, setMovies] = useState<MovieTrending[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -17,7 +17,7 @@ export default function Trending() {
         console.log('Full API Response:', data);
   
         // Ensure data.results is defined, otherwise default to an empty array
-        setMovies(Array.isArray(data) ? data : []);
+        setMovies(data.results);
       } catch (err) {
         console.error('Error fetching trending movies:', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
