@@ -79,6 +79,9 @@ export default function UserReview() {
   return (
     <div className="min-h-screen pt-20 pb-10">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <button onClick={() => navigate('/')} className="mb-4 w-full px-4 py-2 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 transition-colors">
+          View Movies Based on Already Provided Preferences
+        </button>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white">Complete Your Profile</h1>
           <p className="mt-2 text-gray-400">Help us personalize your movie recommendations</p>
