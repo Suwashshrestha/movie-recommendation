@@ -577,3 +577,115 @@ export async function updateUserMoviePreferences(
     throw new Error('An unexpected error occurred while updating preferences');
   }
 }
+
+
+interface RatingMovie {
+  ems_id: string;
+  title: string;
+  synopsis: string;
+  director: string;
+  rating: string;
+  original_language: string;
+  movie_index: number;
+  tagline: string;
+  genres: Record<string, unknown>;
+  cast: Record<string, unknown>;
+  avg_rating: string;
+}
+
+interface RatingRequest {
+  movie: RatingMovie;
+  movie_id: number;
+  score: number;
+}
+
+interface RatingResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function submitMovieRating(ratingData: RatingRequest): Promise<RatingResponse> {
+  const token = localStorage.getItem('auth_token');
+
+  try {
+    const response = await axios.post<RatingResponse>(
+      `${API_BASE_URL}/api/ratings/`,
+      ratingData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+      }
+    );
+    
+    return {
+      success: true,
+      message: 'Rating submitted successfully'
+    };
+  } catch (error) {
+    console.error('Failed to submit rating:', error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('auth_token');
+        throw new Error('Please log in to submit ratings');
+      }
+      if (error.response?.data) {
+        throw new Error(Object.values(error.response.data).flat().join(', '));
+      }
+      throw new Error('Network error - please try again');
+    }
+    throw new Error('An unexpected error occurred while submitting rating');
+  }
+}
+
+interface UserRating {
+  id: number;
+  movie: Movie;
+  score: number;
+  created_at: string;
+  updated_at: string;
+}
+interface UserRatingsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: UserRating[];
+}
+
+export async function getUserRatings(): Promise<UserRatingsResponse> {
+  const token = localStorage.getItem('auth_token');
+  
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  try {
+    const response = await axios.get<UserRatingsResponse>(
+      `${API_BASE_URL}/api/ratings/`,
+      {
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch user ratings:', error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('auth_token');
+        throw new Error('Please log in to view your ratings');
+      }
+      if (error.response?.data) {
+        throw new Error(Object.values(error.response.data).flat().join(', '));
+      }
+      throw new Error('Network error - please try again');
+    }
+    throw new Error('An unexpected error occurred while fetching ratings');
+  }
+}

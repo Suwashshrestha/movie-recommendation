@@ -1,7 +1,7 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
 import { getMovieById, type MovieSearch, getRecommendedMovies } from "~/utils/api";
-import { trackMovieInteraction } from "~/utils/api";
+import { trackMovieInteraction, submitMovieRating } from "~/utils/api";
 import { FavoriteIcon } from "../components/Favorite"
 import { useState } from "react";
 interface LoaderData {
@@ -16,7 +16,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   try {
     const movie = await getMovieById(movieId);
 
-    // Get recommendations using movie_index
+
     let recommendedMovies: MovieSearch[] = [];
     if (movie.movie_index) {
       recommendedMovies = await getRecommendedMovies(movie.movie_index);
@@ -79,7 +79,25 @@ export default function MovieDetails() {
   const handleRating = async (rating: number) => {
     try {
       setUserRating(rating);
-      await trackMovieInteraction(movie.id, 'RATE', rating);
+
+      await submitMovieRating({
+        movie: {
+          ems_id: movie.id,
+          title: movie.title,
+          synopsis: movie.synopsis || "",
+          director: movie.director || "",
+          rating: movie.rating || "",
+          original_language: movie.original_language || "",
+          movie_index: movie.movie_index || 0,
+          tagline: movie.tagline || "",
+          genres: movie.genres || {},
+          cast: movie.cast || {},
+          avg_rating: movie.avg_rating?.toString() || ""
+        },
+        movie_id: parseInt(movie.id),
+        score: rating
+      });
+
     } catch (error) {
       console.error('Failed to save rating:', error);
     }
@@ -130,14 +148,14 @@ export default function MovieDetails() {
               <div className="mt-4 border-t border-gray-700 pt-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Rate this Movie</h3>
                 <div className="flex items-center space-x-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
+                  {[1, 2, 3, 4, 5,6,7,8,9,10].map((star) => (
                     <button
                       key={star}
                       onClick={() => handleRating(star)}
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <svg
-                        className={`w-8 h-8 ${userRating >= star
+                        className={`w-6 h-6 ${userRating >= star
                             ? "text-yellow-400"
                             : "text-gray-600 hover:text-yellow-300"
                           } transition-colors duration-200`}
