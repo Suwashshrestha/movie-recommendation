@@ -530,3 +530,50 @@ export async function getTrendingMovies(): Promise<TrendingMoviesResponse> {
     throw new Error('An unexpected error occurred while fetching trending movies');
   }
 }
+
+
+
+export async function updateUserMoviePreferences(
+  userId: string,
+  preferences: {
+    
+    movieTaste: { movie: number; taste: 'AWFUL' | 'MEH' | 'GOOD' | 'AMAZING' | 'HAVENT SEEN' }[];
+  }
+): Promise<{ success: boolean; message: string }> {
+  const token = localStorage.getItem('auth_token');
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/movie-taste/`,
+      {
+    
+        movie_taste: preferences.movieTaste,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return {
+      success: true,
+      message: 'Preferences updated successfully',
+    };
+  } catch (error) {
+    console.error('Failed to update user preferences:', error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('auth_token');
+        throw new Error('Please log in to update preferences');
+      }
+      if (error.response?.data) {
+        throw new Error(Object.values(error.response.data).flat().join(', '));
+      }
+      throw new Error('Network error - please try again');
+    }
+    throw new Error('An unexpected error occurred while updating preferences');
+  }
+}
