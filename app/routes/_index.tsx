@@ -64,19 +64,19 @@ export default function Index() {
       try {
         setIsLoading(true);
         let allMovies: MovieSearch[] = [];
-        let currentPage = 1;
+      
         let hasMore = true;
 
         while (hasMore) {
-          const response = await fetchMovies(currentPage, 20); 
+          const response = await fetchMovies(1, 10); 
           allMovies = [...allMovies, ...response.results];
 
           // Check if there are more pages
-          hasMore = response.next !== null;
-          currentPage++;
+          
+         
 
           // Optional: Break after certain number of movies to prevent too many requests
-          if (allMovies.length >= 100) break;
+         
         }
 
         console.log('Total movies fetched:', allMovies.length);
@@ -111,7 +111,7 @@ export default function Index() {
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 to-gray-900/90 z-10" />
-        <div className="absolute inset-0 overflow-hidden grid grid-cols-2 gap-2 p-4">
+        <div className="absolute inset-0 overflow-hidden md:flex gap-2 p-4 grid grid-cols-2">
           {!isLoading && getCurrentMovies().slice(0, 4).map((movie, index) => (
             <div
               key={movie.id}
