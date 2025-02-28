@@ -554,13 +554,44 @@ export async function getUserRatings(): Promise<UserRatingsResponse> {
         headers: getAuthHeaders(),
       }
     );
-
+                    
+  
+    const movieIds = response.data.results.map((movie) => movie.movie.id);
     return response.data;
+   
   } catch (error) {
     console.error('Failed to fetch user ratings:', error);
     handleError(error);
   }
 }
+  export async function getUserRatingsIds(): Promise<{score:number,movie:number}> {
+  const token = localStorage.getItem('auth_token');
+  
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  try {
+    const response = await axios.get<UserRatingsResponse>(
+      `${API_BASE_URL}/api/ratings/`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+                    
+  
+        const movieIds = response.data.results.map((movie) => movie.movie.id);
+        const scores = response.data.results.map((movie) => movie.score);
+        return {movie:movieIds,score:scores};
+   
+  } catch (error) {
+    console.error('Failed to fetch user ratings:', error);
+    handleError(error);
+  }
+}
+
+
+
 
 interface CreateFavoriteResponse {
   success: boolean;
@@ -578,20 +609,17 @@ export async function createFavoriteMovie(movieData: number): Promise<CreateFavo
         headers: getAuthHeaders(),
       }
     );
-    
     return response.data;
+   
   } catch (error) {
     console.error('Failed to add favorite movie:', error);
     handleError(error);
   }
 }
-
 interface FavoriteMoviesCache {
   movieIds: number[];
   lastFetched: number;
 }
-
-// Cache variables
 let favoriteMoviesCache: FavoriteMoviesCache | null = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
