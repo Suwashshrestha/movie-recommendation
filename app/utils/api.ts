@@ -268,11 +268,12 @@ export async function searchMovies(
   const params = new URLSearchParams({
     page: page.toString(),
     page_size: pageSize.toString(),
-    title: query,
+     
+      
   });
 
   const response = await fetch(
-    `${API_BASE_URL}/api/movies/search/?${params.toString()}`
+      `${API_BASE_URL}/api/movies/search/?search=${params.toString()}` 
   );
 
   if (!response.ok) {
