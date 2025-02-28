@@ -18,7 +18,8 @@ export default function Register() {
     setSuccess(null);
     setIsLoading(true);
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const userData = {
       email: formData.get("email") as string,
       username: formData.get("username") as string,
@@ -33,6 +34,11 @@ export default function Register() {
       setEmail(userData.email);
       setShowOTPInput(true);
       setSuccess("Registration successful! Please enter the OTP sent to your email.");
+      
+      // Safe form reset
+      if (form instanceof HTMLFormElement) {
+        form.reset();
+      }
 
     } catch (error) {
       console.error("Registration error:", error);
@@ -41,6 +47,7 @@ export default function Register() {
       setIsLoading(false);
     }
   };
+  
   const handleOTPSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
@@ -104,7 +111,9 @@ export default function Register() {
                 <input
                   id="otp"
                   name="otp"
-                  type="otp"
+                  type="text" // Change from "otp" to "text"
+                  inputMode="numeric" // Add this to show numeric keyboard on mobile
+                  pattern="[0-9]{6}" // Add pattern to only allow 6 digits
                   required
                   maxLength={6}
                   defaultValue=""
