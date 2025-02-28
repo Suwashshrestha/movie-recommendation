@@ -113,27 +113,7 @@ export default function MovieDetails() {
   };
 
   const handleFavoriteClick = async () => {
-    try {
-      await createFavoriteMovie({
-        movie: {
-          ems_id: movie.id,
-          title: movie.title,
-          synopsis: movie.synopsis || "",
-          director: movie.director || "",
-          rating: movie.rating || "",
-          original_language: movie.original_language || "",
-          movie_index: movie.movie_index || 0,
-          tagline: movie.tagline || "",
-          genres: movie.genres || {},
-          cast: movie.cast || {},
-          avg_rating: movie.avg_rating?.toString() || ""
-        },
-        movie_id: parseInt(movie.id)
-      });
-      setIsFavorite(!isFavorite);
-    } catch (error) {
-      console.error('Error updating favorite:', error);
-    }
+    
   };
 
   return (
@@ -174,7 +154,7 @@ export default function MovieDetails() {
                   className="cursor-pointer focus:outline-none"
                   aria-label="Add to favorites"
                 >
-                  <FavoriteIcon />
+                  <FavoriteIcon movieId={parseInt(movie.id)}/>
                 </button>
               </div>
               <div className="absolute top-4 left-4 z-10">

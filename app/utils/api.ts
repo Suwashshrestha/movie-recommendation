@@ -503,7 +503,8 @@ interface RatingResponse {
   message: string;
 }
 
-export async function submitMovieRating(ratingData: RatingRequest): Promise<RatingResponse> {
+export async function 
+submitMovieRating(ratingData: RatingRequest): Promise<RatingResponse> {
   try {
     const response = await axios.post<RatingResponse>(
       `${API_BASE_URL}/api/ratings/`,
@@ -565,17 +566,39 @@ interface CreateFavoriteResponse {
   message: string;
 }
 
-export async function createFavoriteMovie(movieData: Movie): Promise<CreateFavoriteResponse> {
+export async function createFavoriteMovie(movieData: number): Promise<CreateFavoriteResponse> {
   try {
     const response = await axios.post<CreateFavoriteResponse>(
       `${API_BASE_URL}/api/favorites/`,
-      movieData,
+      {
+        "movie_id": movieData
+      },
       {
         headers: getAuthHeaders(),
       }
     );
     
     return response.data;
+  } catch (error) {
+    console.error('Failed to add favorite movie:', error);
+    handleError(error);
+  }
+}
+
+export async function getFavoriteMovie(movieData: number): Promise<{isFavorite: boolean}> {
+  try {
+    const response = await axios.get<any>(
+      `${API_BASE_URL}/api/favorites/`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+
+    // console.log("response from getFavoriteMovie", response);
+    
+    const movie_ids = response.data.results.map((movie) => movie.movie.id);
+    // console.log("movie_ids", movie_ids);
+    return {isFavorite: movie_ids.includes(movieData)};
   } catch (error) {
     console.error('Failed to add favorite movie:', error);
     handleError(error);

@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "@remix-run/react";
 import { useState, useEffect, useRef } from "react";
 import { getUserProfile } from "~/utils/api";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { getLoggedIn, setLoggedIn } from "~/global";
 
 export function Nav() {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ export function Nav() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const loggedIn = getLoggedIn();
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -32,7 +35,7 @@ export function Nav() {
       }
     };
     loadUserProfile();
-  }, [navigate]);
+  }, [navigate,loggedIn]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -46,6 +49,7 @@ export function Nav() {
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
+    setLoggedIn(false);
     setIsLoggedIn(false);
     setUserProfile(null);
     navigate('/');
