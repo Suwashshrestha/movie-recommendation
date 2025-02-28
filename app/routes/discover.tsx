@@ -235,22 +235,7 @@ export default function Discover() {
           <div className="flex flex-col space-y-4 md:flex md:flex-row md:space-y-0 md:space-x-4">
             <SearchBar />
             {/* Genre Filter */}
-            <div className="flex flex-wrap gap-2">
-
-              {["All", "Action", "Comedy", "Drama", "Sci-Fi"].map((genre) => (
-                <button
-                  key={genre}
-                  onClick={() => setSelectedGenre(genre.toLowerCase())}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
-            ${selectedGenre === genre.toLowerCase()
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
-                      : "bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white"
-                    } backdrop-blur-sm`}
-                >
-                  {genre}
-                </button>
-              ))}
-            </div>
+            
           </div>
         </div>
 

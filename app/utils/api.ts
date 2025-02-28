@@ -261,22 +261,35 @@ interface SearchResponse {
 }
 
 export async function searchMovies(
-  query: string,
+  query?: string,
+  genre1?: string
   // page: number = 1,
   // pageSize: number = 10
 ): Promise<SearchResponse> {
-  const params = new URLSearchParams({
-    // page: page.toString(),
-    // page_size: pageSize.toString(),
-    query: query.toString(),
+  const params = new URLSearchParams();
+  const genreParams = new URLSearchParams();
 
-      
-  });
-  console.log(query)
+  if (query) {
+    params.append('query', query.toString());
+  }
 
-  const response = await fetch(
-      `${API_BASE_URL}/api/movies/search/?search=${params.toString()}` 
-  );
+  if (genre1) {
+    genreParams.append('genre', genre1.toString());
+  }
+
+  let url = `${API_BASE_URL}/api/movies/search/`;
+
+  if (genre1 && query) {
+    url += `?genres=${genreParams.toString()}&search=${params.toString()}`;
+  } else if (genre1) {
+    url += `?genres=${genreParams.toString()}`;
+  } else if (query) {
+    url += `?search=${params.toString()}`;
+  }
+
+  console.log(query);
+
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error("Search failed");
