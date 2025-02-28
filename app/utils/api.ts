@@ -254,7 +254,7 @@ export interface MovieSearch {
 }
 
 interface SearchResponse {
-  results: Movie[];
+  results: MovieSearch[];
   count: number;
   next: string | null;
   previous: string | null;
