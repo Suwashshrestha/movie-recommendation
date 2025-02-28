@@ -504,7 +504,8 @@ interface RatingResponse {
   message: string;
 }
 
-export async function submitMovieRating(ratingData: RatingRequest): Promise<RatingResponse> {
+export async function 
+submitMovieRating(ratingData: RatingRequest): Promise<RatingResponse> {
   try {
     const response = await axios.post<RatingResponse>(
       `${API_BASE_URL}/api/ratings/`,
@@ -566,11 +567,13 @@ interface CreateFavoriteResponse {
   message: string;
 }
 
-export async function createFavoriteMovie(movieData: Movie): Promise<CreateFavoriteResponse> {
+export async function createFavoriteMovie(movieData: number): Promise<CreateFavoriteResponse> {
   try {
     const response = await axios.post<CreateFavoriteResponse>(
       `${API_BASE_URL}/api/favorites/`,
-      movieData,
+      {
+        "movie_id": movieData
+      },
       {
         headers: getAuthHeaders(),
       }
@@ -581,5 +584,51 @@ export async function createFavoriteMovie(movieData: Movie): Promise<CreateFavor
     console.error('Failed to add favorite movie:', error);
     handleError(error);
   }
+}
+
+interface FavoriteMoviesCache {
+  movieIds: number[];
+  lastFetched: number;
+}
+
+// Cache variables
+let favoriteMoviesCache: FavoriteMoviesCache | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+export async function getFavoriteMovie(movieData: number): Promise<{isFavorite: boolean}> {
+
+
+async function fetchAndCacheFavorites(): Promise<number[]> {
+  const response = await axios.get<any>(
+    `${API_BASE_URL}/api/favorites/`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  
+  const movieIds = response.data.results.map((movie) => movie.movie.id);
+  favoriteMoviesCache = {
+    movieIds,
+    lastFetched: Date.now()
+  };
+  return movieIds;
+}
+
+  try {
+        // Check if cache exists and is still valid
+        if (!favoriteMoviesCache || Date.now() - favoriteMoviesCache.lastFetched > CACHE_DURATION) {
+          await fetchAndCacheFavorites();
+        }
+
+        // Ensure favoriteMoviesCache is not null before accessing
+        if (!favoriteMoviesCache) {
+          return { isFavorite: false };
+        }
+
+        return { isFavorite: favoriteMoviesCache.movieIds.includes(movieData) };
+      } catch (error) {
+        console.error('Failed to check favorite movie:', error);
+        handleError(error);
+      }
 }
 

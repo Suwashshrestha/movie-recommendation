@@ -71,7 +71,7 @@ function MovieCard({ movie }: { movie: Movie }) {
             className="cursor-pointer focus:outline-none"
             aria-label="Add to favorites"
           >
-            <FavoriteIcon />
+            <FavoriteIcon movieId = {movie.id} />
           </button>
         </div>
         <div className="absolute top-4 left-4 z-10">

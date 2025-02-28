@@ -97,7 +97,7 @@ export default function Register() {
        {showOTPInput ? (
           <Form className="mt-8 space-y-6" onSubmit={handleOTPSubmit}>
             <div className="rounded-md shadow-sm space-y-4">
-              <div>
+                <div>
                 <label htmlFor="otp" className="sr-only">
                   OTP Code
                 </label>
@@ -107,10 +107,11 @@ export default function Register() {
                   type="otp"
                   required
                   maxLength={6}
+                  defaultValue=""
                   className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Enter 6-digit OTP"
                 />
-              </div>
+                </div>
             </div>
 
             <button

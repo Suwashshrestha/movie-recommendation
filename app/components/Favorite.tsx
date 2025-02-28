@@ -1,17 +1,35 @@
 import { useState} from "react";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { createFavoriteMovie } from "~/utils/api";
+import { getFavoriteMovie } from "~/utils/api";
+import { useEffect } from "react";
 
 
-export function FavoriteIcon  () {
+export function FavoriteIcon  ({movieId}: {movieId: number}) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
 
-    const handleFavoriteClick = (e: React.MouseEvent) => {
+    const handleFavoriteClick = async (e: React.MouseEvent) => {
+      console.log("Favorite clicked inside favorite Item");
         e.preventDefault();
         setIsFavorite(!isFavorite);
+        console.log("favorite clicked");
+            try {
+              await createFavoriteMovie(movieId);
+              setIsFavorite(!isFavorite);
+            } catch (error) {
+              console.error('Error updating favorite:', error);
+            }
         // TODO: Add API call to update favorites
       };
+    useEffect(() => {
+      getFavoriteMovie(movieId).then((response) => {
+        console.log("response from getFavoriteMovie", response);
+        setIsFavorite(response.isFavorite);
+      });
+    }
+    , [movieId]);
     
      
   return (

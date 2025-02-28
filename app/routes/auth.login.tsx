@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, useNavigate } from "@remix-run/react";
 import { loginUser } from "~/utils/api";
+import { setLoggedIn } from "~/global";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function Login() {
         console.log("Login successful, redirecting...");
         navigate("/user/review");
       }
+      setLoggedIn(true);
     }
   }, [loginSuccess, navigate]);
 
