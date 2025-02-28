@@ -577,6 +577,8 @@ export async function createFavoriteMovie(movieData: number): Promise<CreateFavo
         headers: getAuthHeaders(),
       }
     );
+
+    await fetchAndCacheFavorites();
     
     return response.data;
   } catch (error) {
@@ -586,16 +588,13 @@ export async function createFavoriteMovie(movieData: number): Promise<CreateFavo
 }
 
 interface FavoriteMoviesCache {
-  movieIds: number[];
+  movie: {movieIds:number, userFavoriteId:number}[];
   lastFetched: number;
 }
 
 // Cache variables
 let favoriteMoviesCache: FavoriteMoviesCache | null = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-export async function getFavoriteMovie(movieData: number): Promise<{isFavorite: boolean}> {
-
 
 async function fetchAndCacheFavorites(): Promise<number[]> {
   const response = await axios.get<any>(
@@ -605,13 +604,16 @@ async function fetchAndCacheFavorites(): Promise<number[]> {
     }
   );
   
-  const movieIds = response.data.results.map((movie) => movie.movie.id);
+  const movie = response.data.results.map((movie) => ({ movieIds: movie.movie.id, userFavoriteId: movie.id }));
+  console.log("movie", movie);
   favoriteMoviesCache = {
-    movieIds,
+    movie,
     lastFetched: Date.now()
   };
-  return movieIds;
+  return movie;
 }
+
+export async function getFavoriteMovie(movieData: number): Promise<{isFavorite: boolean}> {
 
   try {
         // Check if cache exists and is still valid
@@ -624,10 +626,130 @@ async function fetchAndCacheFavorites(): Promise<number[]> {
           return { isFavorite: false };
         }
 
-        return { isFavorite: favoriteMoviesCache.movieIds.includes(movieData) };
+        return { isFavorite: favoriteMoviesCache.movie.some(m => m.movieIds === movieData) };
       } catch (error) {
         console.error('Failed to check favorite movie:', error);
         handleError(error);
       }
 }
 
+export async function deleteFavoriteMovie(movieData: number): Promise<CreateFavoriteResponse> {
+  try {
+    if (!favoriteMoviesCache || Date.now() - favoriteMoviesCache.lastFetched > CACHE_DURATION) {
+      console.log("fetching and caching favorites");
+      await fetchAndCacheFavorites();
+    }
+    if (!favoriteMoviesCache) {
+      console.log("No favorite movies cache");
+      return { success: false, message: 'Failed to delete favorite movie' };
+    }
+    const userFavoriteId = favoriteMoviesCache.movie.find(m => m.movieIds === movieData)?.userFavoriteId;
+    console.log("movieData", favoriteMoviesCache.movie.find(m => m.movieIds === movieData));
+    if (!userFavoriteId) {
+      console.log("No user favorite id");
+      return { success: false, message: 'Failed to delete favorite movie' };
+    }
+
+    const response = await axios.delete<CreateFavoriteResponse>(
+      `${API_BASE_URL}/api/favorites/${userFavoriteId}/`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    
+    await fetchAndCacheFavorites();
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete favorite movie:', error);
+    handleError(error);
+  }
+}
+
+
+export async function createWatchListMovie(movieData: number): Promise<CreateFavoriteResponse> {
+  try {
+    const response = await axios.post<CreateFavoriteResponse>(
+      `${API_BASE_URL}/api/watchlist/`,
+      {
+        "movie_id": movieData
+      },
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    
+    await fetchAndCacheWatchList();
+    return response.data;
+
+  } catch (error) {
+    console.error('Failed to add watchlist movie:', error);
+    handleError(error);
+  }
+}
+
+// Cache variables
+let watchListMoviesCache: FavoriteMoviesCache | null = null;
+// const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+async function fetchAndCacheWatchList(): Promise<number[]> {
+  const response = await axios.get<any>(
+    `${API_BASE_URL}/api/watchlist/`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  
+  const movie = response.data.results.map((movie) => ({ movieIds: movie.movie.id, userFavoriteId: movie.id }));
+  watchListMoviesCache = {
+    movie,
+    lastFetched: Date.now()
+  };
+  return movie;
+}
+
+export async function getWatchListMovie(movieData: number): Promise<{isWatchListed: boolean}> {
+
+  try {
+        // Check if cache exists and is still valid
+        if (!watchListMoviesCache || Date.now() - watchListMoviesCache.lastFetched > CACHE_DURATION) {
+          await fetchAndCacheWatchList();
+        }
+
+        // Ensure watchListMoviesCache is not null before accessing
+        if (!watchListMoviesCache) {
+          return { isWatchListed: false };
+        }
+
+        return { isWatchListed: watchListMoviesCache.movie.some(m => m.movieIds === movieData) };
+      } catch (error) {
+        console.error('Failed to check watchlist movie:', error);
+        handleError(error);
+      }
+}
+
+export async function deleteWatchListMovie(movieData: number): Promise<CreateFavoriteResponse> {
+  try {
+    if (!watchListMoviesCache || Date.now() - watchListMoviesCache.lastFetched > CACHE_DURATION) {
+      await fetchAndCacheWatchList();
+    }
+    if (!watchListMoviesCache) {
+      return { success: false, message: 'Failed to delete watchlist movie' };
+    }
+    const userFavoriteId = watchListMoviesCache.movie.find(m => m.movieIds === movieData)?.userFavoriteId;
+    if (!userFavoriteId) {
+      return { success: false, message: 'Failed to delete watchlist movie' };
+    }
+
+    const response = await axios.delete<CreateFavoriteResponse>(
+      `${API_BASE_URL}/api/watchlist/${userFavoriteId}/`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    await fetchAndCacheWatchList();
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete watchlist movie:', error);
+    handleError(error);
+  }
+}

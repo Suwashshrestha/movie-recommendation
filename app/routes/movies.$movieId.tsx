@@ -163,7 +163,7 @@ export default function MovieDetails() {
                 className="cursor-pointer focus:outline-none"
                 aria-label="Add to watchlist"
               >
-                <WatchlistIcon />
+                <WatchlistIcon movieId={parseInt(movie.id)}/>
               </button>
               </div>
               {/* Rating Section */}

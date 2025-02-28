@@ -51,7 +51,7 @@ function MovieCard({ movie }: { movie: MovieSearch }) {
             className="cursor-pointer focus:outline-none"
             aria-label="Add to favorites"
           >
-            <FavoriteIcon movieId = {movie.id} />
+            <FavoriteIcon movieId = {Number(movie.id)} />
           </button>
         </div>
         <div className="absolute top-4 left-4 z-10">
@@ -60,7 +60,7 @@ function MovieCard({ movie }: { movie: MovieSearch }) {
             className="cursor-pointer focus:outline-none"
             aria-label="Add to watchlist"
           >
-            <WatchlistIcon />
+            <WatchlistIcon movieId={Number(movie.id)}/>
           </button>
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

@@ -4,6 +4,7 @@ import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { createFavoriteMovie } from "~/utils/api";
 import { getFavoriteMovie } from "~/utils/api";
 import { useEffect } from "react";
+import { deleteFavoriteMovie } from "~/utils/api";
 
 
 export function FavoriteIcon  ({movieId}: {movieId: number}) {
@@ -13,14 +14,23 @@ export function FavoriteIcon  ({movieId}: {movieId: number}) {
     const handleFavoriteClick = async (e: React.MouseEvent) => {
       console.log("Favorite clicked inside favorite Item");
         e.preventDefault();
-        setIsFavorite(!isFavorite);
+        // setIsFavorite(!isFavorite);
         console.log("favorite clicked");
-            try {
-              await createFavoriteMovie(movieId);
-              setIsFavorite(!isFavorite);
-            } catch (error) {
-              console.error('Error updating favorite:', error);
-            }
+        if (isFavorite) {
+          try {
+            await deleteFavoriteMovie(movieId);
+            setIsFavorite(!isFavorite);
+          } catch (error) {
+            console.error('Error updating favorite:', error);
+          }
+        }else{
+          try {
+            await createFavoriteMovie(movieId);
+            setIsFavorite(!isFavorite);
+          } catch (error) {
+            console.error('Error updating favorite:', error);
+          }
+        }
         // TODO: Add API call to update favorites
       };
     useEffect(() => {
