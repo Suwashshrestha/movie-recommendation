@@ -1,8 +1,8 @@
-import { useLoaderData } from "@remix-run/react";
+    import { useLoaderData,Link } from "@remix-run/react";
 import { json, LoaderFunction } from "@remix-run/node";
 import { SearchBar } from "~/components/Searchbar";
 import { searchMovies, type MovieSearch } from "~/utils/api";
-import { Link } from "@remix-run/react";
+
 interface LoaderData {
     movies: MovieSearch[];
     query: string;

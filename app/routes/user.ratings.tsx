@@ -49,6 +49,7 @@ export default function UserRatings() {
       const response = await getUserRatings(currentPage);
       setRatings(prev => currentPage === 1 ? response.results : [...prev, ...response.results]);
       setHasMore(!!response.next);
+      console.log(response)
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load ratings');

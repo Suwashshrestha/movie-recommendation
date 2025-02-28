@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { trackMovieInteraction } from "~/utils/api";
+import { useState, useEffect } from "react";
+import { getUserRatingsIds, trackMovieInteraction } from "~/utils/api";
 
 export default function Rating() {
     const [userRating, setUserRating] = useState<number>(0);
@@ -12,12 +12,19 @@ export default function Rating() {
           console.error('Failed to save rating:', error);
         }
       };
+      useEffect(() => {
+        const fetchUserRatings = async () => {
+          const userRatings = await getUserRatingsIds();
+          console.log(userRatings);
+        };
+        fetchUserRatings();
+      }, []);
     return (
         <div className="flex items-center space-x-1">
-            {[1, 2, 3, 4, 5].map((star) => (
+            {[1, 2, 3, 4, 5,7,8,9,10].map((star) => (
                 <button
                     key={star}
-                    // onClick={() => handleRating(star)}
+                    onClick={() => handleRating(star)}
                     className="focus:outline-none transition-transform hover:scale-110"
                 >
                     <svg

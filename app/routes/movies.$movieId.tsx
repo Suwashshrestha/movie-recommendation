@@ -4,8 +4,8 @@ import { getMovieById, type MovieSearch, getRecommendedMovies } from "~/utils/ap
 import { trackMovieInteraction, submitMovieRating, createFavoriteMovie } from "~/utils/api";
 import { FavoriteIcon } from "../components/Favorite"
 import { WatchlistIcon } from "../components/Watchlist"
-
-import { useState } from "react";
+import { getUserRatingsIds } from "~/utils/api";
+import { useEffect, useState } from "react";
 interface LoaderData {
   movie: MovieSearch;
   recommendedMovies: MovieSearch[];
@@ -67,7 +67,7 @@ function RecommendedMovieCard({ movie }: { movie: MovieSearch }) {
 export default function MovieDetails() {
   const { movie, recommendedMovies } = useLoaderData<LoaderData>();
   const [userRating, setUserRating] = useState<number>(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+  
 
   const handleInteractionFavorite = async () => {
     try {
@@ -83,6 +83,21 @@ export default function MovieDetails() {
       console.error('Failed ', error);
     }
   };
+
+  useEffect(() => {
+    getUserRatingsIds().then((response) => {
+      console.log(response);
+  
+      // Assuming response has `movie` and `score` arrays
+      const movieIndex = response.movie.indexOf(movie.id);
+      
+      if (movieIndex !== -1) {
+        setUserRating(response.score[movieIndex]); // Set the rating based on index
+      } else {
+        setUserRating(null); // Or a default value if no rating found
+      }
+    });
+  }, [movie.id]);
 
 
   const handleRating = async (rating: number) => {
@@ -111,6 +126,8 @@ export default function MovieDetails() {
       console.error('Failed to save rating:', error);
     }
   };
+
+ 
 
   const handleFavoriteClick = async () => {
     
@@ -177,10 +194,11 @@ export default function MovieDetails() {
               <div className="mt-4 border-t border-gray-700 pt-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Rate this Movie</h3>
                 <div className="flex items-center space-x-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
+                  {[1, 2, 3, 4, 5,6,7,8,9,10].map((star) => (
                     <button
                       key={star}
-                      onClick={() => handleRating(star)}
+                      onClick={() => handleRating(star)}  
+                      
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <svg
