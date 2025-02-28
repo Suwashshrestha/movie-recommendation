@@ -6,40 +6,37 @@ import { searchMovies, type MovieSearch } from "~/utils/api";
 interface LoaderData {
     movies: MovieSearch[];
     query: string;
-    page: number;
-    totalPages: number;
+   
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
     const url = new URL(request.url);
-    const query = url.searchParams.get("q") || "";
-    const page = parseInt(url.searchParams.get("page") || "1");
-    const pageSize = 12;
-
+    const query = url.searchParams.get("search") || "";
+   
+    console.log(query)
     if (!query) {
         return json<LoaderData>({
             movies: [],
             query: "",
-            page: 1,
-            totalPages: 0
+           
+        
         });
     }
 
     try {
-        const data = await searchMovies(query, page, pageSize);
+        const data = await searchMovies(query, );
         return json<LoaderData>({
             movies: data.results as unknown as MovieSearch[],
             query,
-            page,
-            totalPages: Math.ceil(data.count / pageSize)
+            
+           
         });
     } catch (error) {
         console.error("Search error:", error);
         return json<LoaderData>({
             movies: [],
             query,
-            page: 1,
-            totalPages: 0
+            
         });
     }
 };

@@ -262,15 +262,17 @@ interface SearchResponse {
 
 export async function searchMovies(
   query: string,
-  page: number = 1,
-  pageSize: number = 10
+  // page: number = 1,
+  // pageSize: number = 10
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
-    page: page.toString(),
-    page_size: pageSize.toString(),
-     
+    // page: page.toString(),
+    // page_size: pageSize.toString(),
+    query: query.toString(),
+
       
   });
+  console.log(query)
 
   const response = await fetch(
       `${API_BASE_URL}/api/movies/search/?search=${params.toString()}` 
