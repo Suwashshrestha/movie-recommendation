@@ -1,4 +1,6 @@
-const watchlist = () => {
+
+
+export default function watchlist () {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
     <div className="text-center">
@@ -9,10 +11,10 @@ const watchlist = () => {
         We're working hard to build something amazing for you.
         <br />
         Please check back soon!
+      
       </p>
     </div>
   </div>
   )
 }
 
-export default watchlist
