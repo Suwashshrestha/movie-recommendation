@@ -36,7 +36,7 @@ export default function UserProfile() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screenitems-center justify-center ">
+      <div className="flex min-h-screen items-center justify-center ">
           <img 
     src="/loading.gif" 
     alt="Loading..."

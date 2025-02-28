@@ -65,7 +65,7 @@ export function Nav() {
               to="/" 
               className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent"
             >
-              CineMatch
+              Mcinema
             </NavLink>
           </div>
 
