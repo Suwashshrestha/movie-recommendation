@@ -585,23 +585,49 @@ export async function createFavoriteMovie(movieData: number): Promise<CreateFavo
   }
 }
 
-export async function getFavoriteMovie(movieData: number): Promise<{isFavorite: boolean}> {
-  try {
-    const response = await axios.get<any>(
-      `${API_BASE_URL}/api/favorites/`,
-      {
-        headers: getAuthHeaders(),
-      }
-    );
+interface FavoriteMoviesCache {
+  movieIds: number[];
+  lastFetched: number;
+}
 
-    // console.log("response from getFavoriteMovie", response);
-    
-    const movie_ids = response.data.results.map((movie) => movie.movie.id);
-    // console.log("movie_ids", movie_ids);
-    return {isFavorite: movie_ids.includes(movieData)};
-  } catch (error) {
-    console.error('Failed to add favorite movie:', error);
-    handleError(error);
-  }
+// Cache variables
+let favoriteMoviesCache: FavoriteMoviesCache | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+export async function getFavoriteMovie(movieData: number): Promise<{isFavorite: boolean}> {
+
+
+async function fetchAndCacheFavorites(): Promise<number[]> {
+  const response = await axios.get<any>(
+    `${API_BASE_URL}/api/favorites/`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  
+  const movieIds = response.data.results.map((movie) => movie.movie.id);
+  favoriteMoviesCache = {
+    movieIds,
+    lastFetched: Date.now()
+  };
+  return movieIds;
+}
+
+  try {
+        // Check if cache exists and is still valid
+        if (!favoriteMoviesCache || Date.now() - favoriteMoviesCache.lastFetched > CACHE_DURATION) {
+          await fetchAndCacheFavorites();
+        }
+
+        // Ensure favoriteMoviesCache is not null before accessing
+        if (!favoriteMoviesCache) {
+          return { isFavorite: false };
+        }
+
+        return { isFavorite: favoriteMoviesCache.movieIds.includes(movieData) };
+      } catch (error) {
+        console.error('Failed to check favorite movie:', error);
+        handleError(error);
+      }
 }
 
