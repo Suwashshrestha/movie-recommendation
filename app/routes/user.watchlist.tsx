@@ -25,12 +25,9 @@ const WatchListPage = () => {
       try {
         const details = await Promise.all(
           movies.map(async (movie) => {
-            const response = await getMovieById(movie.movieIds);
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            const data = await response.json();
-            return data;
+            const response = await getMovieById(String(movie.movieIds));
+            console.log("response from getMovieById", response);
+            return response;
           })
         );
         setMovieDetails(details);
@@ -58,8 +55,6 @@ const WatchListPage = () => {
           <li key={watchList[index].userFavoriteId}>
             <h2>{movie.title}</h2>
             <p>{movie.overview}</p>
-            <p>Release Date: {movie.release_date}</p>
-            <p>Rating: {movie.vote_average}</p>
           </li>
         ))}
       </ul>
