@@ -1,11 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import { useState, useEffect } from "react";
-import { fetchMovies, type MovieSearch } from "~/utils/api";
-import { getTrendingMovies, TrendingMoviesResponse, MovieTrending } from '../utils/api';
-
-
-
+import { getTrendingMovies, type MovieTrending } from '../utils/api';
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,20 +10,17 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-
-
-
-
 export default function Index() {
   const [currentMovieSet, setCurrentMovieSet] = useState(0);
-  const [movies, setMovies] = useState<MovieSearch[]>([]);
+  const [moviesTrend, setTrendMovies] = useState<MovieTrending[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const moviesPerSet = 4;
-
-  const [moviesTrend, setTrendMovies] = useState<MovieTrending[]>([]);
-
   const [error, setError] = useState<string | null>(null);
 
+  // State for trending movies carousel
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Fetch trending movies
   useEffect(() => {
     const fetchTrendingMovies = async () => {
       try {
@@ -47,8 +40,25 @@ export default function Index() {
 
     fetchTrendingMovies();
   }, []);
-  const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Auto-rotate movies in the hero section
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (moviesTrend.length > 0) {
+        setCurrentMovieSet(prev => (prev + 1) % Math.ceil(moviesTrend.length / moviesPerSet));
+      }
+    }, 2000); // Slightly longer interval for better viewing
+
+    return () => clearInterval(interval);
+  }, [moviesTrend]);
+
+  // Get the current set of movies for the hero section
+  const getCurrentMovies = () => {
+    const startIndex = currentMovieSet * moviesPerSet;
+    return moviesTrend.slice(startIndex, startIndex + moviesPerSet);
+  };
+
+  // Carousel navigation functions
   const nextSlide = () => {
     const totalSlides = Math.ceil(moviesTrend.length / 5);
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -59,59 +69,12 @@ export default function Index() {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
-  useEffect(() => {
-    const loadAllMovies = async () => {
-      try {
-        setIsLoading(true);
-        let allMovies: MovieSearch[] = [];
-        let currentPage = 1;
-        let hasMore = true;
-
-        while (hasMore) {
-          const response = await fetchMovies(currentPage, 20); 
-          allMovies = [...allMovies, ...response.results];
-
-          // Check if there are more pages
-          hasMore = response.next !== null;
-          currentPage++;
-
-          // Optional: Break after certain number of movies to prevent too many requests
-          if (allMovies.length >= 100) break;
-        }
-
-        console.log('Total movies fetched:', allMovies.length);
-        setMovies(allMovies);
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAllMovies();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (movies.length > 0) {
-        setCurrentMovieSet(prev => (prev + 1) % Math.ceil(movies.length / moviesPerSet));
-      }
-    }, 2000); // Slightly longer interval for better viewing
-
-    return () => clearInterval(interval);
-  }, [movies]);
-
-  const getCurrentMovies = () => {
-    const startIndex = currentMovieSet * moviesPerSet;
-    return movies.slice(startIndex, startIndex + moviesPerSet);
-  };
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 to-gray-900/90 z-10" />
-        <div className="absolute inset-0 overflow-hidden grid grid-cols-2 gap-2 p-4">
+        <div className="absolute inset-0 overflow-hidden md:flex gap-2 p-4 grid grid-cols-2">
           {!isLoading && getCurrentMovies().slice(0, 4).map((movie, index) => (
             <div
               key={movie.id}
@@ -157,8 +120,7 @@ export default function Index() {
         </div>
       </section>
 
-
-      {/* trending section */}
+      {/* Trending Section */}
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">Trending Movies</h1>
         <div className="relative overflow-hidden">
@@ -198,25 +160,25 @@ export default function Index() {
             ) : (
               <p className="text-center text-gray-500 ml-56">No movies found.</p>
             )}
-            </div>
-            <button
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-4 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-4 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
           </div>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-4 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-4 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
+      </div>
 
       {/* Features Section */}
       <section className="py-12 md:py-20 bg-gray-900">

@@ -261,20 +261,35 @@ interface SearchResponse {
 }
 
 export async function searchMovies(
-  query: string,
-  page: number = 1,
-  pageSize: number = 10
+  query?: string,
+  genre1?: string
+  // page: number = 1,
+  // pageSize: number = 10
 ): Promise<SearchResponse> {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    page_size: pageSize.toString(),
-     
-      
-  });
+  const params = new URLSearchParams();
+  const genreParams = new URLSearchParams();
 
-  const response = await fetch(
-      `${API_BASE_URL}/api/movies/search/?search=${params.toString()}` 
-  );
+  if (query) {
+    params.append('query', query.toString());
+  }
+
+  if (genre1) {
+    genreParams.append('genre', genre1.toString());
+  }
+
+  let url = `${API_BASE_URL}/api/movies/search/`;
+
+  if (genre1 && query) {
+    url += `?genres=${genreParams.toString()}&search=${params.toString()}`;
+  } else if (genre1) {
+    url += `?genres=${genreParams.toString()}`;
+  } else if (query) {
+    url += `?search=${params.toString()}`;
+  }
+
+  console.log(query);
+
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error("Search failed");
@@ -739,7 +754,7 @@ export async function createWatchListMovie(movieData: number): Promise<CreateFav
 let watchListMoviesCache: FavoriteMoviesCache | null = null;
 // const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-async function fetchAndCacheWatchList(): Promise<number[]> {
+export async function fetchAndCacheWatchList(): Promise<number[]> {
   const response = await axios.get<any>(
     `${API_BASE_URL}/api/watchlist/`,
     {
@@ -753,6 +768,8 @@ async function fetchAndCacheWatchList(): Promise<number[]> {
     lastFetched: Date.now()
   };
   return movie;
+  console.log(movie)
+  
 }
 
 export async function getWatchListMovie(movieData: number): Promise<{isWatchListed: boolean}> {

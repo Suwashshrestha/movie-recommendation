@@ -1,4 +1,4 @@
-    import { useLoaderData,Link } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import { json, LoaderFunction } from "@remix-run/node";
 import { SearchBar } from "~/components/Searchbar";
 import { searchMovies, type MovieSearch } from "~/utils/api";
@@ -6,54 +6,57 @@ import { searchMovies, type MovieSearch } from "~/utils/api";
 interface LoaderData {
     movies: MovieSearch[];
     query: string;
-    page: number;
-    totalPages: number;
+    genre: string;
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
     const url = new URL(request.url);
-    const query = url.searchParams.get("q") || "";
-    const page = parseInt(url.searchParams.get("page") || "1");
-    const pageSize = 12;
+    const query = url.searchParams.get("search") || "";
+    const genre = url.searchParams.get("genres") || "";
 
-    if (!query) {
+    if (!query && !genre) {
         return json<LoaderData>({
             movies: [],
             query: "",
-            page: 1,
-            totalPages: 0
+            genre: "",
         });
     }
 
     try {
-        const data = await searchMovies(query, page, pageSize);
+        const data = await searchMovies(query, genre); // Pass genre to searchMovies
         return json<LoaderData>({
-            movies: data.results as unknown as MovieSearch[],
+            movies: data.results as MovieSearch[], // Assuming the API returns a 'results' array
             query,
-            page,
-            totalPages: Math.ceil(data.count / pageSize)
+            genre,
         });
     } catch (error) {
         console.error("Search error:", error);
         return json<LoaderData>({
             movies: [],
             query,
-            page: 1,
-            totalPages: 0
+            genre,
         });
     }
 };
 
 export default function Search() {
-    const { movies, query } = useLoaderData<LoaderData>();
+    const { movies, query, genre } = useLoaderData<LoaderData>();
 
     return (
         <div className="min-h-screen bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Search Header */}
                 <div className="mb-8">
+               
+
                     <h1 className="text-2xl font-bold text-white mb-4">
-                        {query ? `Search results for "${query}"` : "Search Movies"}
+                        {query && genre
+                            ? `Search results for "${query}" and in genre "${genre}"`
+                            : query
+                                ? `Search results for "${query}"`
+                                : genre
+                                    ? `Search results in genre "${genre}"`
+                                    : "Search Movies"}
                     </h1>
                     <SearchBar />
                 </div>
@@ -66,9 +69,11 @@ export default function Search() {
                 </div>
 
                 {/* No Results Message */}
-                {query && movies.length === 0 && (
+                {(query || genre) && movies.length === 0 && (
                     <div className="text-center text-gray-400 mt-8">
-                        No movies found for &quot;{query}&quot;
+                        No movies found
+                        {query && ` for "${query}"`}
+                        {genre && ` in genre "${genre}"`}
                     </div>
                 )}
             </div>
@@ -110,7 +115,7 @@ function MovieCard({ movie }: { movie: MovieSearch }) {
                         </div>
                         {movie.genres && movie.genres.length > 0 && (
                             <span className="text-sm text-gray-300">
-                                {movie.genres[0]}
+                                {movie.genres.join(", ")}
                             </span>
                         )}
                     </div>
@@ -118,5 +123,4 @@ function MovieCard({ movie }: { movie: MovieSearch }) {
             </div>
         </Link>
     );
-  
 }

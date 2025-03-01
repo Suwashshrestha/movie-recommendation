@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "@remix-run/react";
 import { useState, useEffect, useRef } from "react";
 import { getUserProfile } from "~/utils/api";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, UserIcon } from "@heroicons/react/24/outline";
 import { getLoggedIn, setLoggedIn } from "~/global";
 
 export function Nav() {
@@ -35,7 +35,7 @@ export function Nav() {
       }
     };
     loadUserProfile();
-  }, [navigate,loggedIn]);
+  }, [navigate, loggedIn]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -61,22 +61,22 @@ export function Nav() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <NavLink 
-              to="/" 
+            <NavLink
+              to="/"
               className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent"
             >
-              CineMatch
+              M-Cinema
             </NavLink>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
-          <NavLink
+            <NavLink
               to="/trending"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors
-                ${isActive 
-                  ? 'text-purple-400 bg-purple-500/10' 
+                ${isActive
+                  ? 'text-purple-400 bg-purple-500/10'
                   : 'text-gray-300 hover:text-purple-400 hover:bg-gray-800'}`
               }
             >
@@ -86,8 +86,8 @@ export function Nav() {
               to="/discover"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors
-                ${isActive 
-                  ? 'text-purple-400 bg-purple-500/10' 
+                ${isActive
+                  ? 'text-purple-400 bg-purple-500/10'
                   : 'text-gray-300 hover:text-purple-400 hover:bg-gray-800'}`
               }
             >
@@ -97,8 +97,8 @@ export function Nav() {
               to="/recommendations"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-md text-sm font-medium transition-colors
-                ${isActive 
-                  ? 'text-purple-400 bg-purple-500/10' 
+                ${isActive
+                  ? 'text-purple-400 bg-purple-500/10'
                   : 'text-gray-300 hover:text-purple-400 hover:bg-gray-800'}`
               }
             >
@@ -199,6 +199,7 @@ export function Nav() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 
                        transition-colors focus:outline-none"
+            
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="h-6 w-6" />
@@ -214,6 +215,16 @@ export function Nav() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-gray-900/95 backdrop-blur-lg border-t border-gray-800">
           <div className="px-2 pt-2 pb-3 space-y-1">
+            <NavLink
+              to="/trending"
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-md text-base font-medium transition-colors
+                ${isActive ? 'text-purple-400 bg-purple-500/10' : 'text-gray-300 hover:text-purple-400'}`
+              }
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Trending
+            </NavLink>
             <NavLink
               to="/discover"
               className={({ isActive }) =>
@@ -234,7 +245,7 @@ export function Nav() {
             >
               Recommendations
             </NavLink>
-            
+
             {isLoggedIn && userProfile && (
               <>
                 <NavLink
@@ -282,7 +293,7 @@ export function Nav() {
               </>
             )}
           </div>
-          
+
           {/* Mobile Auth Buttons */}
           {!isLoggedIn && (
             <div className="px-5 py-4 border-t border-gray-800">
