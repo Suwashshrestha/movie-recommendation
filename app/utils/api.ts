@@ -370,6 +370,8 @@ export async function updateUserPreferences(
         headers: getAuthHeaders(),
       }
     );
+
+    console.log("preferences", response.data);
     
     return {
       success: true,
@@ -377,6 +379,22 @@ export async function updateUserPreferences(
     };
   } catch (error) {
     console.error('Failed to update user preferences:', error);
+    handleError(error);
+  }
+}
+
+export async function getUserPreferences(): Promise<{ alreadyExists: boolean;} > {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/preferences/`, {
+      headers: getAuthHeaders(),
+    });
+    
+    console.log("preferences", response.data);
+    return {
+      alreadyExists: response.data.age ? true : false,
+    };
+  } catch (error) {
+    console.error('Failed to fetch user preferences:', error);
     handleError(error);
   }
 }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, useNavigate } from "@remix-run/react";
 import { updateUserPreferences } from "~/utils/api";
+import { getUserPreferences } from "~/utils/api";
 
 export default function UserReview() {
   const navigate = useNavigate();
@@ -75,6 +76,15 @@ export default function UserReview() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    getUserPreferences().then((response) => {
+      console.log("response from getUserPreferences", response);
+      if (response.alreadyExists) {
+        navigate('/');
+      }
+    });
+  }, []);
 
   return (
     <div className="min-h-screen pt-20 pb-10">
