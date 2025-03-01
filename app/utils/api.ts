@@ -581,7 +581,7 @@ export async function getUserRatings(): Promise<UserRatingsResponse> {
   }
 
   try {
-    const response = await axios.get<UserRatingsResponse>(
+    const response = await axios.get<any>(
       `${API_BASE_URL}/api/ratings/`,
       {
         headers: getAuthHeaders(),
