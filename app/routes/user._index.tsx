@@ -195,7 +195,7 @@ export default function UserProfile() {
         </div>
 
         {/* Ratings and Watchlist Sections */}
-        <div className="grid grid-rows-1 md:grid-rows-3 gap-6 mt-8">
+        <div className="grid grid-rows-1 gap-6 mt-8">
           {/* Ratings Section */}
           <div className=" h-fit p-6">
             <h3 className="text-lg font-semibold text-white mb-2">
