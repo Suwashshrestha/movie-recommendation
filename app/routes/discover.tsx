@@ -25,8 +25,10 @@ export function MovieCard({ movie }: { movie: Movie }) {
   const [loading, setLoading] = useState(false);
 
 
-  const handleInteractionView = async () => {
-    setLoading(true);
+  const handleInteractionView = async (e) => {
+    // e.preventDefault();
+    if(!e.defaultPrevented) 
+      setLoading(true);
     try {
       await trackMovieInteraction(movie.id, 'VIEW');
     } catch (error) {
