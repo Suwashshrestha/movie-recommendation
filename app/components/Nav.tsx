@@ -155,13 +155,13 @@ export function Nav() {
                     >
                       Your Ratings
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                       to="/user/lists"
                       className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/50 
                                hover:text-purple-400 transition-colors"
                     >
                       Your Lists
-                    </NavLink>
+                    </NavLink> */}
                     <div className="border-t border-gray-700 my-1"></div>
                     <button
                       onClick={handleLogout}
@@ -272,14 +272,14 @@ export function Nav() {
                 >
                   Your Ratings
                 </NavLink>
-                <NavLink
+                {/* <NavLink
                   to="/user/lists"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 
                            hover:text-purple-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Your Lists
-                </NavLink>
+                </NavLink> */}
                 <button
                   onClick={() => {
                     handleLogout();
