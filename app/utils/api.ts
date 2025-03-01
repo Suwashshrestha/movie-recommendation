@@ -736,7 +736,7 @@ export async function createWatchListMovie(movieData: number): Promise<CreateFav
 let watchListMoviesCache: FavoriteMoviesCache | null = null;
 // const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-async function fetchAndCacheWatchList(): Promise<number[]> {
+export async function fetchAndCacheWatchList(): Promise<number[]> {
   const response = await axios.get<any>(
     `${API_BASE_URL}/api/watchlist/`,
     {
@@ -750,6 +750,8 @@ async function fetchAndCacheWatchList(): Promise<number[]> {
     lastFetched: Date.now()
   };
   return movie;
+  console.log(movie)
+  
 }
 
 export async function getWatchListMovie(movieData: number): Promise<{isWatchListed: boolean}> {
