@@ -127,11 +127,13 @@ export default function Recommendations() {
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-gray-300">{movie.rating}</span>
-                    <div className="flex items-center">
-                      <span className="text-yellow-400">★</span>
-                      <span className="ml-1 text-sm text-gray-300">{movie.rating}</span>
+                  <div className="flex items-center">
+                     
+                    <span className="text-sm text-gray-300">{movie.avg_rating}</span>
+                    <span className="text-yellow-400">★</span>
                     </div>
+                   
+                    
                   </div>
                 </div>
               </div>
