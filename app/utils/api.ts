@@ -818,3 +818,20 @@ export async function deleteWatchListMovie(movieData: number): Promise<CreateFav
     handleError(error);
   }
 }
+
+export async function getRecommendationsForUser(): Promise<MovieSearch[]> {
+  try {
+    const response = await axios.get<MovieSearch[]>(
+      `${API_BASE_URL}/api/recommend/get_recommendation_for_user/`,
+      {
+        headers: getAuthHeaders()
+      }
+    );
+
+    return response.data;
+    console.log("response", response.data);
+  } catch (error) {
+    console.error('Failed to fetch user recommendations:', error);
+    handleError(error);
+  }
+}

@@ -81,7 +81,7 @@ export default function Index() {
               className="relative aspect-[2/3] w-full overflow-hidden rounded-lg"
             >
               <img
-                src={movie.posterUri}
+                src={movie.posterUri || '/movie_poster.jpeg'}
                 alt={movie.title}
                 className="w-full h-full object-cover transition-all duration-1000 ease-in-out hover:scale-110"
                 style={{
@@ -134,7 +134,7 @@ export default function Index() {
                   >
                     <div className="relative aspect-[2/3]">
                       <img
-                        src={movie.posterUri || 'https://via.placeholder.com/500x750'}
+                        src={movie.posterUri  || '/movie_poster.jpeg'}
                         alt={movie.title}
                         className="w-full h-full object-cover"
                       />

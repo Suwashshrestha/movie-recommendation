@@ -85,7 +85,7 @@ className="w-[250px] h-[250px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250p
                 </h3>
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-sm text-gray-300">
-                    {movie.year || 'N/A'}
+                    {movie.rating || 'N/A'}
                   </span>
                   <div className="flex items-center">
                     <span className="text-yellow-400">★</span>

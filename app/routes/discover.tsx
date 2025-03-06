@@ -27,7 +27,7 @@ export function MovieCard({ movie }: { movie: Movie }) {
 
   const handleInteractionView = async (e) => {
     // e.preventDefault();
-    if(!e.defaultPrevented) 
+    if (!e.defaultPrevented)
       setLoading(true);
     try {
       await trackMovieInteraction(movie.id, 'VIEW');
@@ -55,65 +55,65 @@ export function MovieCard({ movie }: { movie: Movie }) {
 
   return (
     <>
-    {loading ? (
-      <div className="flex items-center justify-center ">
-        <img 
-        src="/loading.gif" 
-        alt="Loading..."
-        className="w-[250px] h-[250px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px] lg:w-[300px] lg:h-[300px] xl:w-[350px] xl:h-[350px] bg-transparent"
-        />
-      </div>
-    ):(
-    <Link
-      to={`/movies/${movie.id}`}
-      onClick={handleInteractionView}
-
-      className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105"
-    >
-      <div className="relative aspect-[2/3]">
-        <img
-          src={movie.posterUri}
-          alt={movie.title}
-          className="w-full h-full object-cover"
-        />
-
-        <div className="absolute top-4 right-4 z-10">
-          <button
-            onClick={() => {
-              handleInteractionFavorite();
-
-            }}
-            className="cursor-pointer focus:outline-none"
-            aria-label="Add to favorites"
-          >
-            <FavoriteIcon movieId = {Number(movie.id)} />
-          </button>
+      {loading ? (
+        <div className="flex items-center justify-center ">
+          <img
+            src="/loading.gif"
+            alt="Loading..."
+            className="w-[250px] h-[250px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px] lg:w-[300px] lg:h-[300px] xl:w-[350px] xl:h-[350px] bg-transparent"
+          />
         </div>
-        <div className="absolute top-4 left-4 z-10">
-          <button
-            onClick={handleInteractionWatchlist}
-            className="cursor-pointer focus:outline-none"
-            aria-label="Add to watchlist"
-          >
-            <WatchlistIcon movieId={Number(movie.id)}/>
-          </button>
-        </div>
+      ) : (
+        <Link
+          to={`/movies/${movie.id}`}
+          onClick={handleInteractionView}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-sm text-gray-300">{movie.year}</span>
-            <div className="flex items-center">
-              <span className="text-yellow-400">★</span>
-              <span className="ml-1 text-sm text-gray-300">{movie.rating}</span>
+          className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:scale-105"
+        >
+          <div className="relative aspect-[2/3]">
+            <img
+              src={movie.posterUri || '/movie_poster.jpeg'}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
+
+            <div className="absolute top-4 right-4 z-10">
+              <button
+                onClick={() => {
+                  handleInteractionFavorite();
+
+                }}
+                className="cursor-pointer focus:outline-none"
+                aria-label="Add to favorites"
+              >
+                <FavoriteIcon movieId={Number(movie.id)} />
+              </button>
+            </div>
+            <div className="absolute top-4 left-4 z-10">
+              <button
+                onClick={handleInteractionWatchlist}
+                className="cursor-pointer focus:outline-none"
+                aria-label="Add to watchlist"
+              >
+                <WatchlistIcon movieId={Number(movie.id)} />
+              </button>
+            </div>
+
+           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-sm text-gray-300">{movie.year}</span>
+                <div className="flex items-center">
+                  <span className="text-yellow-400">★</span>
+                  <span className="ml-1 text-sm text-gray-300">{movie.rating}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </Link>
-    )}
-    
+        </Link>
+      )}
+
     </>
   );
 }
@@ -209,7 +209,7 @@ export default function Discover() {
           <div className="flex flex-col space-y-4 md:flex md:flex-row md:space-y-0 md:space-x-4">
             <SearchBar />
             {/* Genre Filter */}
-            
+
           </div>
         </div>
 
@@ -259,11 +259,11 @@ export default function Discover() {
         {/* Loading and Error Messages */}
         {isLoading && (
           <div className="flex items-center justify-center ">
-               <img 
-    src="/loading.gif" 
-    alt="Loading..."
-    className="w-[250px] h-[250px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px] lg:w-[300px] lg:h-[300px] xl:w-[350px] xl:h-[350px] bg-transparent"
-  />
+            <img
+              src="/loading.gif"
+              alt="Loading..."
+              className="w-[250px] h-[250px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px] lg:w-[300px] lg:h-[300px] xl:w-[350px] xl:h-[350px] bg-transparent"
+            />
           </div>
         )}
         {error && (
