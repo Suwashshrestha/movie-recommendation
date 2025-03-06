@@ -398,15 +398,15 @@ export async function updateUserPreferences(
   }
 }
 
-export async function getUserPreferences(): Promise<{ alreadyExists: boolean;} > {
+export async function getUserPreferences(): Promise<{ alreadyExists: boolean; }> {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/preferences/`, {
       headers: getAuthHeaders(),
     });
     
-    console.log("preferences", response.data);
+    console.log("preferences", response.data.results);
     return {
-      alreadyExists: response.data ? true : false,
+      alreadyExists: response.data.results.length > 0 && response.data.results[0].age ? true : false,
     };
   } catch (error) {
     console.error('Failed to fetch user preferences:', error);

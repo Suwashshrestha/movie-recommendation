@@ -124,11 +124,11 @@ export default function ReviewMovies() {
           <>
             <div className="relative rounded-lg overflow-hidden w-full max-w-[260px] mx-auto">
               <div className="aspect-[2/3] relative">
-                <img src={currentMovie.posterUri} alt={currentMovie.title} className="absolute inset-0 w-full h-full object-cover" />
+                <img src={currentMovie.posterUri || '/movie_poster.jpeg'} alt={currentMovie.title} className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute bottom-10 left-0 right-0 p-4 text-white bg-gradient-to-t from-black/80 to-transparent">
                 <h2 className="text-xl font-semibold text-center">{currentMovie.title}</h2>
-                <p className="text-gray-300 text-center">{currentMovie.year}</p>
+                <p className="text-gray-300 text-center">{currentMovie.avg_rating}</p>
               </div>
             </div>
 
