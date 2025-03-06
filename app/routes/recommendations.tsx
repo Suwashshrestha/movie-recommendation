@@ -7,12 +7,14 @@ import { WatchlistIcon } from "../components/Watchlist"
 export default function Recommendations() {
   const [recommendations, setRecommendations] = useState<MovieSearch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (!token) {
-      navigate('/auth/login');
+      setIsAuthenticated(false);
+      setLoading(false);
       return;
     }
 
@@ -58,6 +60,22 @@ export default function Recommendations() {
       console.error('Failed ', error);
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto p-4 min-h-screen flex flex-col items-center justify-center">
+        <p className="text-gray-400 text-center mb-4">Please login to see your recommendations.</p>
+        <button
+          onClick={() => navigate('/auth/login')}
+          className="   px-4 py-2 text-base font-medium text-white bg-purple-600 
+                           rounded-md hover:bg-purple-700 transition-colors text-center
+                           shadow-lg shadow-purple-500/25"
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
@@ -109,7 +127,7 @@ export default function Recommendations() {
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-gray-300">{movie.year}</span>
+                    <span className="text-sm text-gray-300">{movie.rating}</span>
                     <div className="flex items-center">
                       <span className="text-yellow-400">★</span>
                       <span className="ml-1 text-sm text-gray-300">{movie.rating}</span>

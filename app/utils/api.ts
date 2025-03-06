@@ -406,7 +406,7 @@ export async function getUserPreferences(): Promise<{ alreadyExists: boolean;} >
     
     console.log("preferences", response.data);
     return {
-      alreadyExists: response.data.age ? true : false,
+      alreadyExists: response.data ? true : false,
     };
   } catch (error) {
     console.error('Failed to fetch user preferences:', error);
