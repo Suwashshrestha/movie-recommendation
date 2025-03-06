@@ -194,7 +194,7 @@ export default function MovieDetails() {
               <div className="mt-4 border-t border-gray-700 pt-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Rate this Movie</h3>
                 <div className="flex items-center space-x-1">
-                  {[1, 2, 3, 4, 5,6,7,8,9,10].map((star) => (
+                  {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       onClick={() => handleRating(star)}  
