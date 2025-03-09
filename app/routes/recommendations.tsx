@@ -82,6 +82,16 @@ export default function Recommendations() {
       <h2 className="text-3xl font-semibold text-white mb-6 text-center">
         Your Recommendations
       </h2>
+      <div className="flex justify-end mb-4">
+        <Link
+          to="/user/visualization"
+          className="px-4 py-2 text-base font-medium text-white bg-purple-600 
+                    rounded-md hover:bg-purple-700 transition-colors
+                    shadow-lg shadow-purple-500/25"
+        >
+          View Recommendations Analysis
+        </Link>
+      </div>
       {loading ? (
         <div className="flex items-center justify-center ">
           <img 

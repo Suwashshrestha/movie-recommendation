@@ -79,7 +79,7 @@ export default function UserRatings() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <span className="text-yellow-400 text-lg mr-1">★</span>
-                        <span className="text-white">Your Rating: {rating.score}/10</span>
+                        <span className="text-white">Your Rating: {rating.score}/5</span>
                       </div>
                       <span className="text-sm text-gray-400">
                         {new Date(rating.created_at).toLocaleDateString()}

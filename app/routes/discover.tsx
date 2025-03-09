@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 
 
-import { fetchMovies, trackMovieInteraction } from "../utils/api";
+import { fetchMovies, trackMovieInteraction, type MovieSearch } from "../utils/api";
 
 import { SearchBar } from "~/components/Searchbar";
 import { Link } from "@remix-run/react";
@@ -11,14 +11,7 @@ import { WatchlistIcon } from "../components/Watchlist"
 
 
 
-interface Movie {
-  id: string;
-  title: string;
-  posterUri?: string;
-  rating?: string;
-  year?: string;
-  genre?: string[];
-}
+
 
 export function MovieCard({ movie }: { movie: Movie }) {
 
@@ -106,7 +99,7 @@ export function MovieCard({ movie }: { movie: Movie }) {
                 <span className="text-sm text-gray-300">{movie.year}</span>
                 <div className="flex items-center">
                   <span className="text-yellow-400">★</span>
-                  <span className="ml-1 text-sm text-gray-300">{movie.rating}</span>
+                  <span className="ml-1 text-sm text-gray-300">{movie.avg_rating}</span>
                 </div>
               </div>
             </div>
@@ -120,7 +113,7 @@ export function MovieCard({ movie }: { movie: Movie }) {
 
 export default function Discover() {
   const [selectedGenre, setSelectedGenre] = useState<string>("all");
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<MovieSearch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
